@@ -23,7 +23,10 @@ import {
   MessageSquare,
   Building2,
   Scale,
-  Database
+  Database,
+  CreditCard,
+  KeyRound,
+  FileCode
 } from 'lucide-react';
 
 export default function LandingPage() {
@@ -453,6 +456,149 @@ func main() {
               <a href="https://wa.me/6281260006666" target="_blank" rel="noreferrer" className="mt-6 w-full py-2.5 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 text-xs font-bold text-center">
                 Hubungi Enterprise
               </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How to Activate in 3 Easy Steps */}
+      <section id="activation-guide" className="py-16 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-xs font-mono text-amber-400 uppercase tracking-widest">Instant Deployment Workflow</h2>
+          <h3 className="text-3xl font-black text-white mt-1">Panduan 3 Langkah Cepat Aktivasi Lisensi</h3>
+          <p className="text-xs text-slate-400 mt-2 max-w-2xl mx-auto">
+            Proses otomatis, instan, dan aman dari pembelian di WebPay hingga pembukaan penuh fitur Zero Trust di server lokal Anda.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Step 1 */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative flex flex-col justify-between">
+            <div className="absolute top-[-12px] left-6 px-3 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-xs font-mono">
+              LANGKAH 01
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4 mt-2">
+                <CreditCard className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-white">Pilih Paket di webpay.ctar.tech</h4>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Pilih tier yang sesuai kebutuhan bisnis Anda (Starter, Pro, atau Enterprise Airgap). Lakukan pembayaran instan via QRIS, Virtual Account bank nasional, atau kartu kredit.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-amber-400 font-mono">
+              ✓ Instant Settlement & Auto-Invoice
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative flex flex-col justify-between">
+            <div className="absolute top-[-12px] left-6 px-3 py-0.5 rounded-full bg-cyan-500 text-slate-950 font-black text-xs font-mono">
+              LANGKAH 02
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center mb-4 mt-2">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-white">Terima Kunci Kriptografis</h4>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Sistem secara otomatis menerbitkan Kunci Lisensi (<code className="text-cyan-300 font-mono">zt_live_...</code>) atau File Sertifikat Bertanda Tangan Digital (<code className="text-cyan-300 font-mono">.lic</code>) bertanda tangan kurva Ed25519.
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-cyan-400 font-mono">
+              ✓ BLAKE3 Salted & Ed25519 Sealed
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 relative flex flex-col justify-between">
+            <div className="absolute top-[-12px] left-6 px-3 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-black text-xs font-mono">
+              LANGKAH 03
+            </div>
+            <div>
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4 mt-2">
+                <ShieldCheck className="w-5 h-5" />
+              </div>
+              <h4 className="text-base font-bold text-white">Aktivasi di Portal /activate</h4>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                Buka portal aktivasi di web atau server lokal Anda, masukkan kunci atau upload file <code className="text-emerald-300 font-mono">.lic</code>. Seluruh modul AI UEBA, SOAR, dan WAF langsung aktif otomatis!
+              </p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-[11px] text-emerald-400 font-mono">
+              ✓ 100% Unlocked in &lt;0.1s
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-8 text-center">
+          <Link
+            href="/activate"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-amber-500/20 transition-all"
+          >
+            <span>Buka Portal Aktivasi Lisensi Lokal Sekarang</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Privacy, Terms & Compliance Guarantee */}
+      <section id="terms-privacy" className="py-16 px-6 bg-slate-900/50 border-t border-slate-800/80">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-xs font-mono text-cyan-400 uppercase tracking-widest">Enterprise Trust & Legal Framework</h2>
+            <h3 className="text-3xl font-black text-white mt-1">Kebijakan Privasi, Kepatuhan Hukum & SLA</h3>
+            <p className="text-xs text-slate-400 mt-2 max-w-2xl mx-auto">
+              Komitmen kami untuk melindungi privasi kedaulatan data dan kepatuhan hukum penuh terhadap regulasi Indonesia dan Internasional.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Privacy Guarantee */}
+            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <Lock className="w-4 h-4 text-cyan-400" />
+                <span>Zero-Knowledge Privacy</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                ZentyCore <strong>TIDAK PERNAH</strong> membaca, menyimpan, atau mengirimkan isi payload rahasia bisnis Anda ke server pihak ketiga. Seluruh evaluasi risiko diisolasi secara kriptografis mTLS.
+              </p>
+              <div className="mt-3 text-[10px] text-cyan-400 font-mono">UU PDP No. 27/2022 Compliant</div>
+            </div>
+
+            {/* Terms of Service */}
+            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <FileCode className="w-4 h-4 text-emerald-400" />
+                <span>Dual-Licensing Model</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Source code komunitas dijamin di bawah lisensi <strong>AGPL-3.0</strong>. Untuk penggunaan perbankan, BUMN, dan komersial tertutup disediakan lisensi resmi <strong>Enterprise Commercial License</strong>.
+              </p>
+              <div className="mt-3 text-[10px] text-emerald-400 font-mono">Open Core + Enterprise Guarantee</div>
+            </div>
+
+            {/* Airgap Sovereign Rights */}
+            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <ShieldCheck className="w-4 h-4 text-purple-400" />
+                <span>Hak Permanen Airgap</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Lisensi Enterprise Airgap bersifat independen dan dapat berjalan selamanya di jaringan data center tertutup tanpa perlu bergantung pada server luar atau validasi online.
+              </p>
+              <div className="mt-3 text-[10px] text-purple-400 font-mono">Perpetual Sovereign Rights</div>
+            </div>
+
+            {/* SLA & Security Warranty */}
+            <div className="p-5 rounded-2xl bg-slate-950 border border-slate-800">
+              <div className="flex items-center gap-2 text-white font-bold text-sm mb-2">
+                <Cpu className="w-4 h-4 text-amber-400" />
+                <span>99.9% Uptime & SLA</span>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Jaminan response time evaluasi &lt;0.1ms berbasis Rust Engine dengan latency ultra-rendah dan dukungan teknis 24/7 untuk penanganan insiden siber kritis.
+              </p>
+              <div className="mt-3 text-[10px] text-amber-400 font-mono">Enterprise Service Level Agreement</div>
             </div>
           </div>
         </div>
