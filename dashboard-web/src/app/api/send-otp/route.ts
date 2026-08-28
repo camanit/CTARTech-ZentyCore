@@ -8,9 +8,9 @@ export async function POST(req: Request) {
     const targetDestination = destination || (channel === 'whatsapp' ? '082129745115' : 'arahmand99@gmail.com');
     const otp = otpCode || Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 1. Integrasi WhatsApp Gateway (kaowhat.com & WebPay WA Engine)
+    // 1. Integrasi WhatsApp Gateway (kaowhat.com Sesi Ctartech)
     if (channel === 'whatsapp') {
-      const kaowhatApiKey = process.env.KAOWHAT_API_KEY || 'kw_key_hGxQYtYcyxizwaOURcjwQjYMLd2gceFTraAvFq4Q';
+      const kaowhatApiKey = process.env.KAOWHAT_API_KEY || 'kw_key_co2eivrwAhH4gjzU28nutBf1lWO3LXG7A0vrLiYL';
       const formattedNumber = targetDestination.replace(/^0/, '62').replace(/\D/g, '');
 
       let sentSuccess = false;
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
         const res = await fetch('https://kaowhat.com/api/v1/send', {
           method: 'POST',
@@ -27,10 +27,8 @@ export async function POST(req: Request) {
             'Authorization': `Bearer ${kaowhatApiKey}`,
           },
           body: JSON.stringify({
-            recipient: formattedNumber,
-            number: formattedNumber,
             phone: formattedNumber,
-            message: `*🛡️ CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
+            message: `🛡️ *CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
           }),
           signal: controller.signal,
         });
