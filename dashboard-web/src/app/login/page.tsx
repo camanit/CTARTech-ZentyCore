@@ -17,19 +17,17 @@ import {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState('secops_admin@ctartech.id');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [step, setStep] = useState<'CREDENTIALS' | 'MFA_CHALLENGE'>('CREDENTIALS');
-  const [mfaCode, setMfaCode] = useState('849201');
+  const [mfaCode, setMfaCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setErrorMsg('Masukkan email atau User Principal Name (UPN).');
-      return;
-    }
+    const effectiveEmail = email.trim() || 'secops_admin@ctartech.id';
+    setEmail(effectiveEmail);
     setErrorMsg('');
     setLoading(true);
 
@@ -42,13 +40,18 @@ export default function LoginPage() {
 
   const handleMfaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (mfaCode.length !== 6) {
+      setErrorMsg('Masukkan 6-digit kode OTP / FIDO2 authenticator.');
+      return;
+    }
+    setErrorMsg('');
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
       const authUser = {
-        email,
-        role: email.includes('auditor') ? 'Compliance_Auditor' : 'SecOps_Admin',
+        email: email || 'secops_admin@ctartech.id',
+        role: (email || '').includes('auditor') ? 'Compliance_Auditor' : 'SecOps_Admin',
         token: 'zt_live_jwt_authenticated_' + Math.random().toString(36).substring(2, 10),
         mfaVerified: true,
         loginAt: new Date().toISOString(),
@@ -211,8 +214,18 @@ export default function LoginPage() {
                   value={mfaCode}
                   onChange={(e) => setMfaCode(e.target.value)}
                   required
+                  placeholder="000000"
                   className="w-full bg-slate-950 border border-cyan-500/40 rounded-xl py-3 text-center text-lg font-mono tracking-[8px] text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
                 />
+                <div className="flex justify-center mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setMfaCode('849201')}
+                    className="text-[10px] text-cyan-400/80 hover:text-cyan-300 bg-cyan-950/40 border border-cyan-500/20 px-2 py-0.5 rounded-md hover:bg-cyan-900/40 transition-all"
+                  >
+                    🎲 Klik untuk Auto-Fill OTP Demo (849201)
+                  </button>
+                </div>
               </div>
 
               <button
