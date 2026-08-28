@@ -404,10 +404,10 @@ func main() {
                 </ul>
               </div>
               <a 
-                href="https://webpay.ctar.tech" 
+                href="https://webpay.ctar.tech/checkout?app_key=wp_live_catXjouorFPPv8F2sJT1EY2zQXdqyruI&item=ZentyCore+Starter+Tier&price=500000" 
                 target="_blank" 
                 rel="noreferrer"
-                className="mt-6 w-full py-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 text-xs font-bold text-center block"
+                className="mt-6 w-full py-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 text-xs font-bold text-center block transition-all"
               >
                 Bayar via webpay.ctar.tech
               </a>
@@ -429,10 +429,10 @@ func main() {
                 </ul>
               </div>
               <a 
-                href="https://webpay.ctar.tech" 
+                href="https://webpay.ctar.tech/checkout?app_key=wp_live_catXjouorFPPv8F2sJT1EY2zQXdqyruI&item=ZentyCore+Professional+Tier&price=2000000" 
                 target="_blank" 
                 rel="noreferrer"
-                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs text-center shadow-lg shadow-cyan-500/20 block"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs text-center shadow-lg shadow-cyan-500/20 block transition-all"
               >
                 Bayar via webpay.ctar.tech
               </a>

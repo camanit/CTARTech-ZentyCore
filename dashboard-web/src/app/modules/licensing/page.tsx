@@ -423,14 +423,9 @@ export default function LicensingModulePage() {
                   <span className="text-xs font-bold text-white flex items-center gap-1.5">
                     <span>⚡ CTARTech WebPay Portal</span>
                   </span>
-                  <a
-                    href="https://webpay.ctar.tech"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold hover:underline"
-                  >
-                    Buka webpay.ctar.tech ↗
-                  </a>
+                  <span className="text-[10px] font-mono text-emerald-400 font-bold">
+                    App: wp_live_catX...yruI
+                  </span>
                 </div>
                 <div className="text-[11px] text-slate-400 space-y-1">
                   <div>• <strong>QRIS Instant Settlement</strong> (GoPay, OVO, Dana, ShopeePay, BCA)</div>
@@ -438,7 +433,7 @@ export default function LicensingModulePage() {
                   <div>• <strong>Corporate Invoicing & e-Faktur PPN 11%</strong> (Otomatis)</div>
                 </div>
                 <a
-                  href="https://webpay.ctar.tech"
+                  href="https://webpay.ctar.tech/checkout?app_key=wp_live_catXjouorFPPv8F2sJT1EY2zQXdqyruI&item=ZentyCore+Enterprise+License&price=15000000"
                   target="_blank"
                   rel="noreferrer"
                   className="mt-3 w-full py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-lg transition-all text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20"
