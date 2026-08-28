@@ -115,9 +115,12 @@ export default function LoginPage() {
 
     setTimeout(() => {
       setLoading(false);
+      const isMasterAdmin = (email || adminEmail).toLowerCase() === 'arahmand99@gmail.com';
       const authUser = {
         email: email || adminEmail,
-        role: 'SecOps_Admin',
+        name: isMasterAdmin ? 'Budi Alpha Owner (Superadmin)' : email.split('@')[0],
+        org: isMasterAdmin ? 'CTARTech Security Operations' : 'Enterprise Tenant',
+        role: isMasterAdmin ? 'Superadmin / SecOps Lead' : 'Tenant_Admin',
         token: 'zt_live_jwt_authenticated_' + Math.random().toString(36).substring(2, 10),
         mfaVerified: true,
         mfaChannel,
@@ -197,25 +200,16 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <div className="flex justify-between items-center mb-1.5">
-                  <label className="block text-xs font-semibold text-slate-300">
-                    Primary Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={handleFido2Passwordless}
-                    className="text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1"
-                  >
-                    <Fingerprint className="w-3.5 h-3.5" />
-                    <span>FIDO2 Passwordless (Touch ID / YubiKey)?</span>
-                  </button>
-                </div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Primary Password
+                </label>
                 <div className="relative">
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter password (or click FIDO2 above)..."
+                    required
+                    placeholder="Masukkan kata sandi akun..."
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition-all"
                   />
                   <Lock className="w-4 h-4 text-slate-500 absolute right-3.5 top-3" />
@@ -227,40 +221,9 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full py-2.5 mt-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.99]"
               >
-                {loading ? 'Verifying Identity...' : 'Next: Verify MFA via WhatsApp / Email'}
+                {loading ? 'Memvalidasi Identitas...' : 'Lanjut: Verifikasi MFA via WhatsApp / Email'}
                 <ArrowRight className="w-4 h-4" />
               </button>
-
-              {/* SSO Divider */}
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-slate-800"></div>
-                </div>
-                <div className="relative flex justify-center text-[10px] uppercase">
-                  <span className="bg-slate-900 px-2 text-slate-500 font-semibold">
-                    Enterprise SSO Identity Providers
-                  </span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin('admin')}
-                  className="p-2 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 rounded-xl text-[11px] font-semibold text-slate-300 flex items-center justify-center gap-2 transition-all"
-                >
-                  <KeyRound className="w-3.5 h-3.5 text-cyan-400" />
-                  <span>Okta / SAML 2.0</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemoLogin('admin')}
-                  className="p-2 bg-slate-950 hover:bg-slate-800/80 border border-slate-800 rounded-xl text-[11px] font-semibold text-slate-300 flex items-center justify-center gap-2 transition-all"
-                >
-                  <Fingerprint className="w-3.5 h-3.5 text-purple-400" />
-                  <span>Microsoft Entra ID</span>
-                </button>
-              </div>
             </form>
           ) : (
             /* STEP 2: MFA Challenge with WhatsApp & Email Gateways */
