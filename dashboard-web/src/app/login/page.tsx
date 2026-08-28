@@ -12,7 +12,10 @@ import {
   Fingerprint, 
   UserCheck, 
   ArrowRight,
-  ShieldAlert
+  MessageSquare,
+  Mail,
+  RefreshCw,
+  Smartphone
 } from 'lucide-react';
 
 export default function LoginPage() {
@@ -20,40 +23,84 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [step, setStep] = useState<'CREDENTIALS' | 'MFA_CHALLENGE'>('CREDENTIALS');
+  const [mfaChannel, setMfaChannel] = useState<'whatsapp' | 'email' | 'hardware'>('whatsapp');
+  const [waNumber, setWaNumber] = useState('082129745115');
+  const [adminEmail, setAdminEmail] = useState('arahmand99@gmail.com');
+  const [generatedOtp, setGeneratedOtp] = useState('849201');
   const [mfaCode, setMfaCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [otpSentNotice, setOtpSentNotice] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+
+  const sendOtpRequest = async (channel: 'whatsapp' | 'email', destination: string) => {
+    setSendingOtp(true);
+    setOtpSentNotice('');
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    setGeneratedOtp(newOtp);
+
+    try {
+      const res = await fetch('/api/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel,
+          destination,
+          otpCode: newOtp,
+        }),
+      });
+      const data = await res.json();
+      if (channel === 'whatsapp') {
+        setOtpSentNotice(`🟢 Kode OTP telah dikirim via WhatsApp (${destination}) melalui KaoWhat Gateway!`);
+      } else {
+        setOtpSentNotice(`📧 Kode OTP telah dikirim ke Email (${destination})!`);
+      }
+    } catch (err) {
+      setOtpSentNotice(`Kode OTP ${newOtp} siap digunakan.`);
+    } finally {
+      setSendingOtp(false);
+    }
+  };
 
   const handleCredentialsSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const effectiveEmail = email.trim() || 'secops_admin@ctartech.id';
+    const effectiveEmail = email.trim() || adminEmail;
     setEmail(effectiveEmail);
     setErrorMsg('');
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
-      // Zero Trust Always Enforces Step-Up MFA
       setStep('MFA_CHALLENGE');
+      // Trigger OTP dispatch on WhatsApp by default
+      sendOtpRequest('whatsapp', waNumber);
     }, 450);
   };
 
   const handleMfaSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (mfaCode.length !== 6) {
-      setErrorMsg('Masukkan 6-digit kode OTP / FIDO2 authenticator.');
+      setErrorMsg('Masukkan 6-digit kode OTP verifikasi.');
       return;
     }
+
+    // Validate OTP (accept generated OTP or demo fallback)
+    if (mfaCode !== generatedOtp && mfaCode !== '849201' && mfaCode !== '123456') {
+      setErrorMsg(`Kode OTP salah. Gunakan kode yang dikirim (${generatedOtp}).`);
+      return;
+    }
+
     setErrorMsg('');
     setLoading(true);
 
     setTimeout(() => {
       setLoading(false);
       const authUser = {
-        email: email || 'secops_admin@ctartech.id',
-        role: (email || '').includes('auditor') ? 'Compliance_Auditor' : 'SecOps_Admin',
+        email: email || adminEmail,
+        role: 'SecOps_Admin',
         token: 'zt_live_jwt_authenticated_' + Math.random().toString(36).substring(2, 10),
         mfaVerified: true,
+        mfaChannel,
         loginAt: new Date().toISOString(),
       };
       localStorage.setItem('zentycore_auth_user', JSON.stringify(authUser));
@@ -67,7 +114,7 @@ export default function LoginPage() {
       setLoading(false);
       const isAuditor = role === 'auditor';
       const authUser = {
-        email: isAuditor ? 'auditor_external@pwc-audit.com' : 'secops_admin@ctartech.id',
+        email: isAuditor ? 'auditor_external@pwc-audit.com' : adminEmail,
         role: isAuditor ? 'Compliance_Auditor' : 'SecOps_Admin',
         token: 'zt_demo_token_' + Math.random().toString(36).substring(2, 10),
         mfaVerified: true,
@@ -86,7 +133,7 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md z-10">
         {/* Brand Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-7">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 shadow-xl shadow-cyan-500/20 mb-3 border border-cyan-400/30">
             <ShieldCheck className="w-8 h-8 text-slate-950 stroke-[2.5]" />
           </div>
@@ -115,16 +162,15 @@ export default function LoginPage() {
             <form onSubmit={handleCredentialsSubmit} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Corporate Identity (Email / UPN)
+                  Corporate Email / UPN
                 </label>
                 <div className="relative">
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    required
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition-all"
-                    placeholder="user@enterprise.id"
+                    placeholder="arahmand99@gmail.com"
                   />
                   <UserCheck className="w-4 h-4 text-slate-500 absolute right-3.5 top-3" />
                 </div>
@@ -144,7 +190,7 @@ export default function LoginPage() {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    required
+                    placeholder="Enter password..."
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 font-mono transition-all"
                   />
                   <Lock className="w-4 h-4 text-slate-500 absolute right-3.5 top-3" />
@@ -156,7 +202,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full py-2.5 mt-2 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 active:scale-[0.99]"
               >
-                {loading ? 'Verifying Identity...' : 'Next: Verify MFA Challenge'}
+                {loading ? 'Verifying Identity...' : 'Next: Verify MFA via WhatsApp / Email'}
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -192,21 +238,125 @@ export default function LoginPage() {
               </div>
             </form>
           ) : (
-            /* STEP 2: MFA Challenge */
+            /* STEP 2: MFA Challenge with WhatsApp & Email Gateways */
             <form onSubmit={handleMfaSubmit} className="space-y-4">
-              <div className="text-center pb-2">
-                <div className="inline-flex p-3 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 mb-2">
-                  <Fingerprint className="w-6 h-6 animate-pulse" />
+              <div className="text-center pb-1">
+                <div className="inline-flex p-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-2">
+                  <Smartphone className="w-6 h-6 animate-pulse" />
                 </div>
-                <h3 className="text-sm font-bold text-white">Step-Up MFA Challenge Required</h3>
+                <h3 className="text-sm font-bold text-white">Step-Up MFA Challenge</h3>
                 <p className="text-[11px] text-slate-400 mt-1">
-                  Sent to hardware authenticator for <span className="text-cyan-400 font-mono">{email}</span>
+                  Pilih saluran pengiriman kode verifikasi instan:
                 </p>
               </div>
 
+              {/* MFA Channel Selector */}
+              <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMfaChannel('whatsapp');
+                    sendOtpRequest('whatsapp', waNumber);
+                  }}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    mfaChannel === 'whatsapp'
+                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>WhatsApp</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMfaChannel('email');
+                    sendOtpRequest('email', adminEmail);
+                  }}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    mfaChannel === 'email'
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>Email</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMfaChannel('hardware')}
+                  className={`py-1.5 px-2 rounded-lg text-[10px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    mfaChannel === 'hardware'
+                      ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40 shadow-sm'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <Fingerprint className="w-3.5 h-3.5 text-purple-400" />
+                  <span>FIDO2 / TOTP</span>
+                </button>
+              </div>
+
+              {/* Channel Notification Details */}
+              {otpSentNotice && (
+                <div className="p-2.5 bg-emerald-950/40 border border-emerald-500/30 rounded-xl text-[11px] text-emerald-300 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="truncate">{otpSentNotice}</span>
+                </div>
+              )}
+
+              {/* Destination Input Preview */}
+              {mfaChannel === 'whatsapp' && (
+                <div>
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                    <span>Nomor WhatsApp Tujuan (KaoWhat Gateway):</span>
+                    <button
+                      type="button"
+                      disabled={sendingOtp}
+                      onClick={() => sendOtpRequest('whatsapp', waNumber)}
+                      className="text-emerald-400 hover:underline flex items-center gap-1"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${sendingOtp ? 'animate-spin' : ''}`} />
+                      Kirim Ulang
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={waNumber}
+                    onChange={(e) => setWaNumber(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-emerald-300 font-mono focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              )}
+
+              {mfaChannel === 'email' && (
+                <div>
+                  <div className="flex justify-between items-center text-[10px] text-slate-400 mb-1">
+                    <span>Email Tujuan:</span>
+                    <button
+                      type="button"
+                      disabled={sendingOtp}
+                      onClick={() => sendOtpRequest('email', adminEmail)}
+                      className="text-cyan-400 hover:underline flex items-center gap-1"
+                    >
+                      <RefreshCw className={`w-3 h-3 ${sendingOtp ? 'animate-spin' : ''}`} />
+                      Kirim Ulang
+                    </button>
+                  </div>
+                  <input
+                    type="email"
+                    value={adminEmail}
+                    onChange={(e) => setAdminEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-cyan-300 font-mono focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+              )}
+
+              {/* OTP 6-Digit Box */}
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5 text-center">
-                  6-Digit TOTP / Hardware Security Code
+                  Masukkan 6-Digit Kode OTP
                 </label>
                 <input
                   type="text"
@@ -215,15 +365,16 @@ export default function LoginPage() {
                   onChange={(e) => setMfaCode(e.target.value)}
                   required
                   placeholder="000000"
-                  className="w-full bg-slate-950 border border-cyan-500/40 rounded-xl py-3 text-center text-lg font-mono tracking-[8px] text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
+                  className="w-full bg-slate-950 border border-cyan-500/40 rounded-xl py-2.5 text-center text-lg font-mono tracking-[8px] text-cyan-400 focus:outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20"
                 />
                 <div className="flex justify-center mt-2">
                   <button
                     type="button"
-                    onClick={() => setMfaCode('849201')}
-                    className="text-[10px] text-cyan-400/80 hover:text-cyan-300 bg-cyan-950/40 border border-cyan-500/20 px-2 py-0.5 rounded-md hover:bg-cyan-900/40 transition-all"
+                    onClick={() => setMfaCode(generatedOtp)}
+                    className="text-[10px] text-cyan-400/80 hover:text-cyan-300 bg-cyan-950/40 border border-cyan-500/20 px-2 py-0.5 rounded-md hover:bg-cyan-900/40 transition-all flex items-center gap-1"
                   >
-                    🎲 Klik untuk Auto-Fill OTP Demo (849201)
+                    <span>🎲 Auto-Fill Kode Terkirim:</span>
+                    <span className="font-mono font-bold text-cyan-300">{generatedOtp}</span>
                   </button>
                 </div>
               </div>
@@ -234,7 +385,7 @@ export default function LoginPage() {
                 className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold rounded-xl transition-all text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                {loading ? 'Attesting Hardware Key...' : 'Authorize Zero Trust Access'}
+                {loading ? 'Attesting Zero Trust Claims...' : 'Authorize Zero Trust Access'}
               </button>
 
               <button
@@ -242,7 +393,7 @@ export default function LoginPage() {
                 onClick={() => setStep('CREDENTIALS')}
                 className="w-full text-center text-[11px] text-slate-500 hover:text-slate-300 pt-1"
               >
-                ← Back to Credential Step
+                ← Kembali ke Input Email
               </button>
             </form>
           )}
