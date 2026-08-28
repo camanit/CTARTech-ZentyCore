@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
   UserCheck, 
@@ -13,11 +14,37 @@ import {
   Zap, 
   FileCheck2, 
   Cpu, 
-  KeyRound 
+  KeyRound,
+  LogOut,
+  User
 } from 'lucide-react';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('zentycore_auth_user');
+      if (stored) {
+        setCurrentUser(JSON.parse(stored));
+      } else {
+        // Default guest session
+        setCurrentUser({
+          email: 'secops_admin@ctartech.id',
+          role: 'SecOps_Admin',
+        });
+      }
+    } catch (e) {
+      // fallback
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('zentycore_auth_user');
+    router.push('/login');
+  };
 
   const coreModules = [
     { name: '1. Identity & IAM', path: '/modules/identity', icon: UserCheck },
@@ -38,7 +65,7 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-slate-900/90 backdrop-blur-md text-slate-300 min-h-screen p-4 flex flex-col border-r border-slate-800 flex-shrink-0">
       {/* Brand Header */}
-      <Link href="/" className="flex items-center gap-3 px-2 py-3 mb-6 rounded-xl hover:bg-slate-800/60 transition-all">
+      <Link href="/" className="flex items-center gap-3 px-2 py-3 mb-4 rounded-xl hover:bg-slate-800/60 transition-all">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center text-slate-950 font-black text-sm shadow-lg shadow-cyan-500/20">
           <ShieldCheck className="w-5 h-5 text-slate-950 stroke-[2.5]" />
         </div>
@@ -49,6 +76,28 @@ export default function Sidebar() {
           <div className="text-[10px] text-slate-400 font-medium">Unified Control Plane</div>
         </div>
       </Link>
+
+      {/* User Session Profile Badge */}
+      {currentUser && (
+        <div className="mb-5 p-2.5 bg-slate-950/70 border border-slate-800 rounded-xl flex items-center justify-between">
+          <div className="flex items-center gap-2 truncate">
+            <div className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-bold shrink-0">
+              <User className="w-3.5 h-3.5" />
+            </div>
+            <div className="truncate">
+              <div className="text-[11px] font-bold text-slate-200 truncate">{currentUser.email}</div>
+              <div className="text-[9px] text-cyan-400 font-mono font-semibold">{currentUser.role || 'SecOps_Admin'}</div>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Log Out Session"
+            className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
 
       {/* 8 Core Zero Trust Pillars */}
       <div className="mb-2 px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
@@ -62,7 +111,7 @@ export default function Sidebar() {
             <Link
               key={idx}
               href={mod.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                 isActive
                   ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-300 border border-cyan-500/30 font-semibold shadow-sm'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -75,7 +124,7 @@ export default function Sidebar() {
         })}
 
         {/* Intelligence & Superadmin Section */}
-        <div className="mt-5 mb-2 px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+        <div className="mt-4 mb-2 px-3 text-[11px] font-bold tracking-wider text-slate-400 uppercase">
           AI & Operations
         </div>
         {intelligenceAndAdmin.map((mod, idx) => {
@@ -85,7 +134,7 @@ export default function Sidebar() {
             <Link
               key={`admin-${idx}`}
               href={mod.path}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                 isActive
                   ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/10 text-purple-300 border border-purple-500/30 font-semibold shadow-sm'
                   : 'text-slate-400 hover:bg-slate-800 hover:text-white'
@@ -110,12 +159,11 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer Status */}
-      <div className="pt-4 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between px-2">
+      <div className="pt-3 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between px-2">
         <span>Control Plane :8080</span>
-        <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          ONLINE
-        </span>
+        <Link href="/login" className="text-[10px] text-cyan-400 hover:underline">
+          Portal Login →
+        </Link>
       </div>
     </aside>
   );
