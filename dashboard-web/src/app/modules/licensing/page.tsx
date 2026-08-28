@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import MetricCard from '@/components/MetricCard';
 import { 
@@ -17,7 +17,12 @@ import {
   RefreshCw, 
   AlertTriangle, 
   Power, 
-  ShieldAlert 
+  ShieldAlert,
+  Activity,
+  Terminal,
+  Clock,
+  Radio,
+  Filter
 } from 'lucide-react';
 import { generateOfflineLicense } from '@/lib/api';
 
@@ -34,6 +39,15 @@ interface TenantRecord {
   lastActive: string;
 }
 
+interface ActivityLogItem {
+  id: string;
+  timestamp: string;
+  tenantName: string;
+  eventType: 'POLICY_CHECK' | 'API_CALL' | 'PAYMENT_RECEIVED' | 'KEY_ROTATED' | 'QUOTA_WARNING' | 'AIRGAP_ATTEST';
+  severity: 'INFO' | 'SUCCESS' | 'WARN' | 'CRITICAL';
+  details: string;
+}
+
 export default function LicensingModulePage() {
   const [tenantName, setTenantName] = useState('PT Bank Central Enterprise Tbk');
   const [tier, setTier] = useState('Enterprise');
@@ -43,6 +57,7 @@ export default function LicensingModulePage() {
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [logFilter, setLogFilter] = useState<string>('ALL');
 
   // Multi-Tenant User Directory State
   const [tenants, setTenants] = useState<TenantRecord[]>([
@@ -56,7 +71,7 @@ export default function LicensingModulePage() {
       apiCallsMax: 'Unlimited',
       status: 'ACTIVE',
       keyHash: 'b3_9f1a7c2e4d8b6...',
-      lastActive: '2 menit lalu',
+      lastActive: '2 detik lalu',
     },
     {
       id: 't-002',
@@ -68,7 +83,7 @@ export default function LicensingModulePage() {
       apiCallsMax: 500000,
       status: 'ACTIVE',
       keyHash: 'b3_e2a0f8c19d4b...',
-      lastActive: '5 menit lalu',
+      lastActive: '1 menit lalu',
     },
     {
       id: 't-003',
@@ -80,7 +95,7 @@ export default function LicensingModulePage() {
       apiCallsMax: 'AirGap Offline',
       status: 'AIRGAP_VERIFIED',
       keyHash: 'ed25519_sig_88f91...',
-      lastActive: 'Offline Airgap Node',
+      lastActive: 'Offline Airgap Node (Compliant)',
     },
     {
       id: 't-004',
@@ -92,7 +107,7 @@ export default function LicensingModulePage() {
       apiCallsMax: 50000,
       status: 'ACTIVE',
       keyHash: 'b3_78c1a9f02e4d...',
-      lastActive: '12 menit lalu',
+      lastActive: '3 menit lalu',
     },
     {
       id: 't-005',
@@ -104,7 +119,59 @@ export default function LicensingModulePage() {
       apiCallsMax: 50000,
       status: 'QUOTA_EXCEEDED',
       keyHash: 'b3_11a8d4c9f7e2...',
-      lastActive: '1 jam lalu',
+      lastActive: '12 menit lalu',
+    },
+  ]);
+
+  // Real-Time Activity Logs State
+  const [logs, setLogs] = useState<ActivityLogItem[]>([
+    {
+      id: 'log-1',
+      timestamp: '19:28:44',
+      tenantName: 'PT Bank Central Enterprise Tbk',
+      eventType: 'POLICY_CHECK',
+      severity: 'SUCCESS',
+      details: 'Zero Trust PEP evaluated request to /api/v1/core-transact — ALLOWED (Risk: 8/100, mTLS Valid)',
+    },
+    {
+      id: 'log-2',
+      timestamp: '19:27:12',
+      tenantName: 'PT Fintech Nusantara Global',
+      eventType: 'API_CALL',
+      severity: 'INFO',
+      details: 'Express middleware @ctartech/zentycore-middleware attested session token #fin-99120',
+    },
+    {
+      id: 'log-3',
+      timestamp: '19:25:30',
+      tenantName: 'webpay.ctar.tech',
+      eventType: 'PAYMENT_RECEIVED',
+      severity: 'SUCCESS',
+      details: 'Order #ORD-ZT-88910 paid via QRIS Instant Settlement (Rp 500.000) — License Key auto-issued',
+    },
+    {
+      id: 'log-4',
+      timestamp: '19:23:05',
+      tenantName: 'PT Retail Niaga Express',
+      eventType: 'QUOTA_WARNING',
+      severity: 'WARN',
+      details: 'Monthly API call limit exceeded: 50,110 / 50,000. Rate limiter throttling initiated.',
+    },
+    {
+      id: 'log-5',
+      timestamp: '19:20:18',
+      tenantName: 'Kementerian Pertahanan Siber RI',
+      eventType: 'AIRGAP_ATTEST',
+      severity: 'INFO',
+      details: 'Airgap Node #KEMHAN-04 periodic SHA-256 Merkle Ledger state verified locally (Ed25519 Valid)',
+    },
+    {
+      id: 'log-6',
+      timestamp: '19:18:02',
+      tenantName: 'PT Logistik Digital Mandiri',
+      eventType: 'KEY_ROTATED',
+      severity: 'INFO',
+      details: 'Superadmin triggered BLAKE3 Salted Hash key rotation for tenant profile.',
     },
   ]);
 
@@ -131,6 +198,17 @@ export default function LicensingModulePage() {
         };
         setTenants([newRecord, ...tenants]);
       }
+
+      // Add activity log
+      const newLog: ActivityLogItem = {
+        id: `log-${Date.now()}`,
+        timestamp: new Date().toLocaleTimeString('id-ID'),
+        tenantName: tenantName,
+        eventType: 'KEY_ROTATED',
+        severity: 'SUCCESS',
+        details: `Lisensi baru diterbitkan untuk ${tenantName} (Tier: ${tier}, Mode: ${mode})`,
+      };
+      setLogs([newLog, ...logs]);
     } catch (err) {
       console.error(err);
     } finally {
@@ -149,10 +227,19 @@ export default function LicensingModulePage() {
   const toggleTenantStatus = (id: string) => {
     setTenants(prev => prev.map(t => {
       if (t.id === id) {
-        return {
-          ...t,
-          status: t.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE'
+        const nextStatus = t.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
+        // Add log
+        const newLog: ActivityLogItem = {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toLocaleTimeString('id-ID'),
+          tenantName: t.name,
+          eventType: 'KEY_ROTATED',
+          severity: nextStatus === 'ACTIVE' ? 'SUCCESS' : 'WARN',
+          details: `Status tenant ${t.name} diubah menjadi: ${nextStatus} oleh Superadmin.`,
         };
+        setLogs([newLog, ...logs]);
+
+        return { ...t, status: nextStatus };
       }
       return t;
     }));
@@ -162,6 +249,16 @@ export default function LicensingModulePage() {
     setTenants(prev => prev.map(t => {
       if (t.id === id) {
         const randomHash = 'b3_' + Math.random().toString(36).substring(2, 14) + '...';
+        const newLog: ActivityLogItem = {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toLocaleTimeString('id-ID'),
+          tenantName: t.name,
+          eventType: 'KEY_ROTATED',
+          severity: 'INFO',
+          details: `API Key untuk tenant ${t.name} dirotasi ke hash baru: ${randomHash}`,
+        };
+        setLogs([newLog, ...logs]);
+
         return {
           ...t,
           keyHash: randomHash,
@@ -178,6 +275,11 @@ export default function LicensingModulePage() {
     t.tier.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredLogs = logs.filter(log => {
+    if (logFilter === 'ALL') return true;
+    return log.severity === logFilter;
+  });
+
   return (
     <div className="flex bg-slate-950 min-h-screen text-slate-100 font-sans">
       <Sidebar />
@@ -189,10 +291,10 @@ export default function LicensingModulePage() {
               <span className="px-2 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded">
                 SUPERADMIN CONTROL PANEL
               </span>
-              <h1 className="text-2xl font-bold">Licensing, Key Vault & Multi-Tenant Directory</h1>
+              <h1 className="text-2xl font-bold">Direktori Tenant & Log Aktivitas Real-Time</h1>
             </div>
             <p className="text-sm text-slate-400">
-              Pusat kendali seluruh tenant klien, penerbitan lisensi kriptografis BLAKE3, dan monitoring kuota pengguna
+              Pusat monitoring seluruh organisasi pengguna, konsumsi kuota API, dan rekam jejak aktivitas Zero Trust
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-lg text-xs text-amber-400 font-semibold">
@@ -204,8 +306,8 @@ export default function LicensingModulePage() {
         {/* Metric Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
           <MetricCard label="Total Registered Tenants" value={tenants.length.toString()} subtext="Enterprise & Government" colorClass="text-amber-400" />
-          <MetricCard label="Issued API Licenses" value="142" subtext="BLAKE3 Salted Hashes" colorClass="text-cyan-400" />
-          <MetricCard label="Monthly Billable MRR" value="IDR 485M" subtext="Automatic Provisioning" colorClass="text-emerald-400" />
+          <MetricCard label="Active API Sessions" value="1,420 / min" subtext="mTLS Encrypted" colorClass="text-cyan-400" />
+          <MetricCard label="Monthly Billable MRR" value="IDR 485M" subtext="via webpay.ctar.tech" colorClass="text-emerald-400" />
           <MetricCard label="Airgap Nodes Active" value="16 Sites" subtext="Offline Sovereign Vaults" colorClass="text-purple-400" />
         </div>
 
@@ -324,13 +426,82 @@ export default function LicensingModulePage() {
           </div>
         </div>
 
+        {/* LOG AKTIVITAS & PERISTIWA REAL-TIME STREAM */}
+        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-5">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                <Activity className="w-4 h-4 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-base flex items-center gap-2">
+                  <span>Log Data & Aktivitas Real-Time Multi-Tenant</span>
+                  <span className="flex items-center gap-1 text-[10px] text-emerald-400 font-mono bg-emerald-500/20 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                    <Radio className="w-3 h-3" /> LIVE STREAM
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400">
+                  Rekaman kronologis verifikasi lisensi, transaksi WebPay, dan panggilan API PEP
+                </p>
+              </div>
+            </div>
+
+            {/* Severity Filter Buttons */}
+            <div className="flex items-center gap-1.5 p-1 bg-slate-950 border border-slate-800 rounded-xl text-xs font-mono">
+              <button
+                onClick={() => setLogFilter('ALL')}
+                className={`px-2.5 py-1 rounded-lg transition-all ${logFilter === 'ALL' ? 'bg-slate-800 text-white font-bold' : 'text-slate-400 hover:text-white'}`}
+              >
+                Semua ({logs.length})
+              </button>
+              <button
+                onClick={() => setLogFilter('SUCCESS')}
+                className={`px-2.5 py-1 rounded-lg transition-all ${logFilter === 'SUCCESS' ? 'bg-emerald-500/20 text-emerald-300 font-bold' : 'text-slate-400 hover:text-emerald-400'}`}
+              >
+                Success
+              </button>
+              <button
+                onClick={() => setLogFilter('WARN')}
+                className={`px-2.5 py-1 rounded-lg transition-all ${logFilter === 'WARN' ? 'bg-amber-500/20 text-amber-300 font-bold' : 'text-slate-400 hover:text-amber-400'}`}
+              >
+                Warning
+              </button>
+            </div>
+          </div>
+
+          {/* Log Stream Container */}
+          <div className="bg-slate-950 border border-slate-800/80 rounded-xl p-4 font-mono text-xs max-h-72 overflow-y-auto space-y-2.5">
+            {filteredLogs.map((log) => (
+              <div key={log.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 rounded-lg hover:bg-slate-900/60 transition-colors border border-transparent hover:border-slate-800/60">
+                <span className="text-[11px] text-slate-500 shrink-0 flex items-center gap-1">
+                  <Clock className="w-3 h-3 text-slate-600" />
+                  {log.timestamp}
+                </span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-extrabold shrink-0 ${
+                  log.severity === 'SUCCESS'
+                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                    : log.severity === 'WARN'
+                    ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                    : log.severity === 'CRITICAL'
+                    ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
+                    : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                }`}>
+                  {log.eventType}
+                </span>
+                <span className="text-cyan-300 font-semibold shrink-0">[{log.tenantName}]</span>
+                <span className="text-slate-300 break-all">{log.details}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* Generator & Invoicing Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
           {/* Key Generator */}
           <div className="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-xl p-6 shadow-xl">
             <h3 className="font-semibold text-white mb-4 flex items-center gap-2 text-sm">
               <KeyRound className="w-4 h-4 text-amber-400" />
-              License Key & Airgap File Generator
+              Quick Online License Generator & Hash Vault
             </h3>
 
             <div className="space-y-4">
