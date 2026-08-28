@@ -13,7 +13,8 @@ members = [
     "modules/licensing",
     "modules/billing",
     "modules/webhook",
-    "sdks/rust-sdk"
+    "sdks/rust-sdk",
+    "tools/license-signer"
 ]
 resolver = "2"
 
