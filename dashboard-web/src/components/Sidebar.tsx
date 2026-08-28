@@ -78,9 +78,13 @@ export default function Sidebar() {
 
       {/* User Session Profile Badge */}
       {currentUser && (
-        <div className="mb-5 p-2.5 bg-slate-950/70 border border-slate-800 rounded-xl flex items-center justify-between">
+        <Link 
+          href="/profile" 
+          title="Buka Pengaturan Profil & Keamanan"
+          className="mb-5 p-2.5 bg-slate-950/70 hover:bg-slate-800/80 border border-slate-800 rounded-xl flex items-center justify-between transition-all group"
+        >
           <div className="flex items-center gap-2 truncate">
-            <div className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs font-bold shrink-0">
+            <div className="w-6 h-6 rounded-lg bg-cyan-500/20 text-cyan-400 group-hover:bg-cyan-500 group-hover:text-slate-950 flex items-center justify-center text-xs font-bold shrink-0 transition-all">
               <User className="w-3.5 h-3.5" />
             </div>
             <div className="truncate">
@@ -89,13 +93,16 @@ export default function Sidebar() {
             </div>
           </div>
           <button
-            onClick={handleLogout}
-            title="Log Out Session"
-            className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded transition-all"
+            onClick={(e) => {
+              e.preventDefault();
+              handleLogout();
+            }}
+            title="Keluar / Logout"
+            className="p-1 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
-        </div>
+        </Link>
       )}
 
       {/* 8 Core Zero Trust Pillars */}

@@ -413,28 +413,16 @@ export default function LoginPage() {
             </form>
           )}
 
-          {/* Quick Demo Access Bar */}
-          <div className="mt-6 pt-4 border-t border-slate-800/80">
-            <div className="text-[11px] text-slate-400 font-semibold mb-2.5 flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>Instant 1-Click Demo Evaluation:</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('admin')}
-                className="px-3 py-2 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 hover:from-cyan-900/80 hover:to-blue-900/80 border border-cyan-500/30 rounded-xl text-[11px] font-bold text-cyan-300 transition-all text-center"
-              >
-                ⚡ SecOps Admin
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDemoLogin('auditor')}
-                className="px-3 py-2 bg-gradient-to-r from-purple-950/60 to-pink-950/60 hover:from-purple-900/80 hover:to-pink-900/80 border border-purple-500/30 rounded-xl text-[11px] font-bold text-purple-300 transition-all text-center"
-              >
-                🔍 SOC Auditor
-              </button>
-            </div>
+          {/* Register Link Bar (Strict Production Mode) */}
+          <div className="mt-6 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span className="text-slate-400">Belum memiliki akun tenant?</span>
+            <Link 
+              href="/register" 
+              className="text-cyan-400 hover:text-cyan-300 font-bold hover:underline flex items-center gap-1"
+            >
+              <span>Daftar Akun Baru</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
