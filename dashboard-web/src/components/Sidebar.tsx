@@ -158,11 +158,19 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer Status */}
-      <div className="pt-3 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex items-center justify-between px-2">
-        <span>Control Plane :8080</span>
-        <Link href="/login" className="text-[10px] text-cyan-400 hover:underline">
-          Portal Login →
-        </Link>
+      <div className="pt-3 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col gap-1.5 px-2">
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-[10px]">PEP Core :8080</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </div>
+        <div className="flex items-center justify-between pt-1 border-t border-slate-800/40 text-[10px]">
+          <Link href="/landing" className="text-cyan-400 hover:text-cyan-300 hover:underline">
+            🌐 Public Landing Page
+          </Link>
+          <Link href="/login" className="text-slate-400 hover:text-slate-200 hover:underline">
+            Switch Account
+          </Link>
+        </div>
       </div>
     </aside>
   );

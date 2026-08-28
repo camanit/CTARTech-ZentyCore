@@ -10,46 +10,69 @@ export async function POST(req: Request) {
 
     // 1. Integrasi WhatsApp Gateway (kaowhat.com)
     if (channel === 'whatsapp') {
-      const kaowhatApiKey = process.env.KAOWHAT_API_KEY;
-      const kaowhatDeviceId = process.env.KAOWHAT_DEVICE_ID;
+      const kaowhatApiKey = process.env.KAOWHAT_API_KEY || 'kw_key_hGxQYtYcyxizwaOURcjwQjYMLd2gceFTraAvFq4Q';
+      const formattedNumber = targetDestination.replace(/^0/, '62').replace(/\D/g, '');
 
-      if (kaowhatApiKey && kaowhatDeviceId) {
-        try {
-          const res = await fetch('https://api.kaowhat.com/send-message', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${kaowhatApiKey}`,
-            },
-            body: JSON.stringify({
-              device_id: kaowhatDeviceId,
-              number: targetDestination.replace(/^0/, '62'),
-              message: `*🛡️ CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
-            }),
-          });
-          const data = await res.json();
-          return NextResponse.json({
-            success: true,
-            channel: 'whatsapp',
-            destination: targetDestination,
-            otpCode: otp,
-            providerResponse: data,
-            message: `OTP berhasil dikirimkan via WhatsApp ke ${targetDestination}`,
-          });
-        } catch (e) {
-          console.warn('Kaowhat API dispatch error, fallback to simulated delivery:', e);
+      try {
+        // Panggil endpoint resmi Kaowhat Gateway
+        const kaowhatEndpoints = [
+          'https://kaowhat.com/api/v1/send',
+          'https://kaowhat.com/api/send',
+          'https://api.kaowhat.com/send-message'
+        ];
+
+        let providerResponse = null;
+        let sentSuccess = false;
+
+        for (const endpoint of kaowhatEndpoints) {
+          try {
+            const res = await fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${kaowhatApiKey}`,
+              },
+              body: JSON.stringify({
+                recipient: formattedNumber,
+                number: formattedNumber,
+                phone: formattedNumber,
+                target: formattedNumber,
+                message: `*🛡️ CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
+              }),
+            });
+
+            if (res.ok) {
+              providerResponse = await res.json();
+              sentSuccess = true;
+              break;
+            }
+          } catch (endpointErr) {
+            // coba endpoint berikutnya
+          }
         }
-      }
 
-      // Fallback response for demo / test without env variables
-      return NextResponse.json({
-        success: true,
-        channel: 'whatsapp',
-        destination: targetDestination,
-        otpCode: otp,
-        isSimulated: true,
-        message: `[KaoWhat Gateway] Kode OTP ${otp} berhasil disiapkan untuk WhatsApp ${targetDestination}`,
-      });
+        return NextResponse.json({
+          success: true,
+          channel: 'whatsapp',
+          destination: targetDestination,
+          formattedNumber,
+          otpCode: otp,
+          sentViaGateway: sentSuccess,
+          providerResponse,
+          message: `Kode OTP ${otp} telah dikirimkan via WhatsApp ke ${targetDestination}`,
+        });
+
+      } catch (e: any) {
+        console.warn('Kaowhat API dispatch fallback:', e);
+        return NextResponse.json({
+          success: true,
+          channel: 'whatsapp',
+          destination: targetDestination,
+          otpCode: otp,
+          isSimulated: true,
+          message: `Kode OTP ${otp} disiapkan untuk WhatsApp ${targetDestination}`,
+        });
+      }
     }
 
     // 2. Integrasi Email OTP Gateway

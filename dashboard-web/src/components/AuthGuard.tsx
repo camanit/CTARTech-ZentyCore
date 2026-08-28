@@ -11,8 +11,8 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // If user is accessing the login page, no need to check
-    if (pathname === '/login') {
+    // If user is accessing public pages (login or landing), no need to check auth
+    if (pathname === '/login' || pathname === '/landing') {
       setAuthorized(true);
       setChecking(false);
       return;

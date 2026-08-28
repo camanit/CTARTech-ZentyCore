@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
   ShieldCheck, 
@@ -423,9 +424,14 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Footer info */}
-        <div className="text-center mt-6 text-[11px] text-slate-500 font-medium">
-          Protected by CTARTech ZentyCore Autonomous Policy Enforcement Point
+        {/* Footer info & Landing link */}
+        <div className="text-center mt-6 space-y-2 text-[11px] text-slate-500 font-medium">
+          <div>Protected by CTARTech ZentyCore Autonomous Policy Enforcement Point</div>
+          <div>
+            <Link href="/landing" className="text-cyan-400 hover:text-cyan-300 hover:underline">
+              ← Kembali ke Halaman Depan (Public Landing Page)
+            </Link>
+          </div>
         </div>
       </div>
     </div>
