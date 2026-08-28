@@ -30,20 +30,19 @@ export default function Sidebar() {
       if (stored) {
         setCurrentUser(JSON.parse(stored));
       } else {
-        // Default guest session
-        setCurrentUser({
-          email: 'secops_admin@ctartech.id',
-          role: 'SecOps_Admin',
-        });
+        setCurrentUser(null);
       }
     } catch (e) {
-      // fallback
+      setCurrentUser(null);
     }
-  }, []);
+  }, [pathname]);
 
   const handleLogout = () => {
-    localStorage.removeItem('zentycore_auth_user');
-    router.push('/login');
+    try {
+      localStorage.removeItem('zentycore_auth_user');
+    } catch (e) {}
+    setCurrentUser(null);
+    router.replace('/login');
   };
 
   const coreModules = [

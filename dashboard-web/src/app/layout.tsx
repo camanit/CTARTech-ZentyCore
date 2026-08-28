@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import AuthGuard from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
   title: "CTARTech ZentyCore — Zero Trust Control Plane",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased bg-slate-950 text-slate-100 min-h-screen">
-        {children}
+        <AuthGuard>
+          {children}
+        </AuthGuard>
       </body>
     </html>
   );
