@@ -46,3 +46,9 @@ Thumbs.db
 
 # 5. OS & Local Artifacts
 *.log
+
+# 6. Proprietary Developer Tools (Local Developer PC Only)
+tools/
+issued_licenses/
+master_authority.key
+*.bat
