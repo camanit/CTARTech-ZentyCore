@@ -58,6 +58,7 @@ export default function Sidebar() {
 
   const intelligenceAndAdmin = [
     { name: 'AI UEBA Engine', path: '/modules/ai', icon: Cpu, badge: 'AI' },
+    { name: 'Profil & Ubah Password', path: '/profile', icon: User, badge: 'MY_ID' },
     { name: 'Superadmin & License', path: '/modules/licensing', icon: KeyRound, badge: 'PRO' },
   ];
 
