@@ -401,27 +401,51 @@ export default function LicensingModulePage() {
             </div>
           </div>
 
-          {/* Billing & Invoicing Panel */}
+          {/* Billing & Invoicing Panel (webpay.ctar.tech) */}
           <div className="lg:col-span-6 bg-slate-900/80 border border-slate-800 rounded-xl p-6 flex flex-col justify-between">
             <div>
-              <h3 className="font-semibold text-white mb-4 flex items-center gap-2 text-sm">
-                <CreditCard className="w-4 h-4 text-emerald-400" />
-                Integrated Payment & Automated Faktur Pajak
-              </h3>
-
-              <div className="text-xs text-slate-400 mb-4">
-                Pilih gateway pembayaran otomatis untuk aktivasi instan kuota lisensi multi-tenant:
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-white flex items-center gap-2 text-sm">
+                  <CreditCard className="w-4 h-4 text-emerald-400" />
+                  CTARTech WebPay Gateway & Faktur Pajak
+                </h3>
+                <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded">
+                  webpay.ctar.tech
+                </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="p-3 bg-slate-950 border border-cyan-500/30 rounded-lg text-center">
-                  <div className="text-cyan-400 font-bold text-xs mb-1">🇮🇩 Midtrans / Xendit</div>
-                  <div className="text-[10px] text-slate-500">QRIS, Virtual Account, e-Faktur PPN 11%</div>
+              <div className="text-xs text-slate-400 mb-4">
+                Gerbang pembayaran resmi multi-metode terpadu untuk provisioning otomatis lisensi ZentyCore:
+              </div>
+
+              <div className="p-4 bg-slate-950 border border-emerald-500/30 rounded-xl mb-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <span>⚡ CTARTech WebPay Portal</span>
+                  </span>
+                  <a
+                    href="https://webpay.ctar.tech"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold hover:underline"
+                  >
+                    Buka webpay.ctar.tech ↗
+                  </a>
                 </div>
-                <div className="p-3 bg-slate-950 border border-slate-800 rounded-lg text-center">
-                  <div className="text-slate-200 font-bold text-xs mb-1">🌏 Stripe Global</div>
-                  <div className="text-[10px] text-slate-500">USD/EUR/SGD, Credit Card & Apple Pay</div>
+                <div className="text-[11px] text-slate-400 space-y-1">
+                  <div>• <strong>QRIS Instant Settlement</strong> (GoPay, OVO, Dana, ShopeePay, BCA)</div>
+                  <div>• <strong>Virtual Account 24/7</strong> (BCA, Mandiri, BRI, BNI, Permata)</div>
+                  <div>• <strong>Corporate Invoicing & e-Faktur PPN 11%</strong> (Otomatis)</div>
                 </div>
+                <a
+                  href="https://webpay.ctar.tech"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-3 w-full py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-lg transition-all text-xs flex items-center justify-center gap-2 shadow-md shadow-emerald-500/20"
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Proses Pembayaran via webpay.ctar.tech</span>
+                </a>
               </div>
 
               <button

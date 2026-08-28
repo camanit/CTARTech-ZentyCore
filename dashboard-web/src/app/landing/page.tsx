@@ -403,9 +403,14 @@ func main() {
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> Webhook Integration (3 Endpoints)</li>
                 </ul>
               </div>
-              <Link href="/login" className="mt-6 w-full py-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 text-xs font-bold text-center">
-                Pilih Starter
-              </Link>
+              <a 
+                href="https://webpay.ctar.tech" 
+                target="_blank" 
+                rel="noreferrer"
+                className="mt-6 w-full py-2.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 text-xs font-bold text-center block"
+              >
+                Bayar via webpay.ctar.tech
+              </a>
             </div>
 
             {/* Pro Tier */}
@@ -423,9 +428,14 @@ func main() {
                   <li className="flex items-center gap-2"><CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" /> 99.9% SLA & Live Chat Support</li>
                 </ul>
               </div>
-              <Link href="/login" className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs text-center shadow-lg shadow-cyan-500/20">
-                Pilih Professional
-              </Link>
+              <a 
+                href="https://webpay.ctar.tech" 
+                target="_blank" 
+                rel="noreferrer"
+                className="mt-6 w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold text-xs text-center shadow-lg shadow-cyan-500/20 block"
+              >
+                Bayar via webpay.ctar.tech
+              </a>
             </div>
 
             {/* Enterprise Tier */}
