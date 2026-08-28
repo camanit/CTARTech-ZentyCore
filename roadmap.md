@@ -1568,6 +1568,14 @@ Berdasarkan evaluasi kesenjangan antara prototipe interaktif (`index.html`) dan 
   * [x] **Python / FastAPI / Django** (`sdks/python-sdk`): `zentycore.py` dengan ASGI BaseHTTPMiddleware inline policy evaluator.
   * [x] **Go / Gin** (`sdks/go-sdk`): `go-zentycore` dengan `StandardHTTPMiddleware` zero-trust wrapper.
 
+### 7. 🔑 Hybrid Two-Sided Desktop & Local License Agent (Client Validator vs Sovereign Issuer Authority) — ✅ **[SELESAI / COMPLETED]**
+* **Status**: ✅ **SELESAI (Agustus 2026)** — Pemisahan arsitektur lisensi dua sisi: Client License Validator & Local Desktop Activator terintegrasi dengan `https://ctar-tech-zenty-core.vercel.app` & `webpay.ctar.tech`, sementara Master Private Signing Key tetap 100% aman dan terisolasi di sisi Developer.
+* **Tindakan yang Telah Diselesaikan**:
+  * [x] **Client Local License Activator Portal** (`/activate`): Antarmuka mandiri bagi pengguna self-hosted/klien untuk mengaktifkan lisensi via API Key (`zt_live_...`) atau upload file `.lic` Ed25519.
+  * [x] **Two-Sided Key Architecture**: Klien membawa Public Key Verifier (aman di-push ke GitHub), Developer memegang Private Signing Key (terisolasi dan diproteksi `.gitignore`).
+  * [x] **Integrasi WebPay Instant Fulfillment**: Pembayaran di `webpay.ctar.tech` langsung menerbitkan token yang bisa diaktifkan di instance lokal klien.
+  * [x] **Airgap Offline Certification**: Klien perbankan & militer dapat mengaktifkan fitur Enterprise secara 100% offline tanpa koneksi internet.
+
 ---
 
 > 📌 **Catatan**: Roadmap ini adalah dokumen hidup — terus diperbarui seiring perkembangan proyek.  

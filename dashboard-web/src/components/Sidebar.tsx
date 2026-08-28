@@ -157,15 +157,21 @@ export default function Sidebar() {
         })}
       </nav>
 
-      {/* Footer Status */}
-      <div className="pt-3 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col gap-1.5 px-2">
-        <div className="flex items-center justify-between">
-          <span className="font-mono text-[10px]">PEP Core :8080</span>
-          <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-        </div>
-        <div className="flex items-center justify-between pt-1 border-t border-slate-800/40 text-[10px]">
+      {/* Footer Status & License Activator */}
+      <div className="pt-3 mt-auto border-t border-slate-800/80 text-[11px] text-slate-400 flex flex-col gap-2 px-2">
+        <Link 
+          href="/activate" 
+          className="w-full py-1.5 px-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[11px] font-bold flex items-center justify-between transition-all"
+        >
+          <span className="flex items-center gap-1.5">
+            <KeyRound className="w-3.5 h-3.5 text-amber-400" />
+            <span>Aktivasi Lisensi</span>
+          </span>
+          <span className="text-[9px] bg-amber-500/30 text-amber-200 px-1.5 py-0.2 rounded font-mono">LOCAL</span>
+        </Link>
+        <div className="flex items-center justify-between text-[10px] text-slate-400">
           <Link href="/landing" className="text-cyan-400 hover:text-cyan-300 hover:underline">
-            🌐 Public Landing Page
+            🌐 Landing Page
           </Link>
           <Link href="/login" className="text-slate-400 hover:text-slate-200 hover:underline">
             Switch Account
