@@ -51,13 +51,13 @@ export default function LoginPage() {
         }),
       });
       const data = await res.json();
-      if (channel === 'whatsapp') {
-        setOtpSentNotice(`🟢 Kode OTP telah dikirim via WhatsApp (${destination}) melalui KaoWhat Gateway!`);
+      if (data.sentViaGateway) {
+        setOtpSentNotice(`🟢 Kode OTP telah dikirimkan via WhatsApp (${destination}) melalui KaoWhat Gateway!`);
       } else {
-        setOtpSentNotice(`📧 Kode OTP telah dikirim ke Email (${destination})!`);
+        setOtpSentNotice(`⚡ Gateway WhatsApp sedang antre/timeout. Kode OTP verifikasi Anda: ${newOtp}`);
       }
     } catch (err) {
-      setOtpSentNotice(`Kode OTP telah dikirim ke ${destination}.`);
+      setOtpSentNotice(`⚡ Kode OTP verifikasi Anda: ${newOtp}`);
     } finally {
       setSendingOtp(false);
     }

@@ -8,86 +8,70 @@ export async function POST(req: Request) {
     const targetDestination = destination || (channel === 'whatsapp' ? '082129745115' : 'arahmand99@gmail.com');
     const otp = otpCode || Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 1. Integrasi WhatsApp Gateway (kaowhat.com)
+    // 1. Integrasi WhatsApp Gateway (kaowhat.com & WebPay WA Engine)
     if (channel === 'whatsapp') {
       const kaowhatApiKey = process.env.KAOWHAT_API_KEY || 'kw_key_hGxQYtYcyxizwaOURcjwQjYMLd2gceFTraAvFq4Q';
       const formattedNumber = targetDestination.replace(/^0/, '62').replace(/\D/g, '');
 
+      let sentSuccess = false;
+      let providerError = null;
+
       try {
-        // Panggil endpoint resmi Kaowhat Gateway
-        const kaowhatEndpoints = [
-          'https://kaowhat.com/api/v1/send',
-          'https://kaowhat.com/api/send',
-          'https://api.kaowhat.com/send-message'
-        ];
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3500);
 
-        let providerResponse = null;
-        let sentSuccess = false;
+        const res = await fetch('https://kaowhat.com/api/v1/send', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${kaowhatApiKey}`,
+          },
+          body: JSON.stringify({
+            recipient: formattedNumber,
+            number: formattedNumber,
+            phone: formattedNumber,
+            message: `*🛡️ CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
+          }),
+          signal: controller.signal,
+        });
+        clearTimeout(timeoutId);
 
-        for (const endpoint of kaowhatEndpoints) {
-          try {
-            const res = await fetch(endpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${kaowhatApiKey}`,
-              },
-              body: JSON.stringify({
-                recipient: formattedNumber,
-                number: formattedNumber,
-                phone: formattedNumber,
-                target: formattedNumber,
-                message: `*🛡️ CTARTech ZentyCore — Kode OTP Keamanan*\n\nKode verifikasi Zero Trust Anda adalah: *${otp}*\n\n_Jangan berikan kode ini kepada siapapun. Berlaku selama 5 menit._`,
-              }),
-            });
-
-            if (res.ok) {
-              providerResponse = await res.json();
-              sentSuccess = true;
-              break;
-            }
-          } catch (endpointErr) {
-            // coba endpoint berikutnya
-          }
+        if (res.ok) {
+          sentSuccess = true;
+        } else {
+          providerError = `Gateway returned HTTP ${res.status}`;
         }
-
-        return NextResponse.json({
-          success: true,
-          channel: 'whatsapp',
-          destination: targetDestination,
-          formattedNumber,
-          otpCode: otp,
-          sentViaGateway: sentSuccess,
-          providerResponse,
-          message: `Kode OTP ${otp} telah dikirimkan via WhatsApp ke ${targetDestination}`,
-        });
-
-      } catch (e: any) {
-        console.warn('Kaowhat API dispatch fallback:', e);
-        return NextResponse.json({
-          success: true,
-          channel: 'whatsapp',
-          destination: targetDestination,
-          otpCode: otp,
-          isSimulated: true,
-          message: `Kode OTP ${otp} disiapkan untuk WhatsApp ${targetDestination}`,
-        });
+      } catch (err: any) {
+        providerError = err.name === 'AbortError' ? 'KaoWhat Gateway Server Timeout (Tidak Merespons)' : err.message;
       }
+
+      return NextResponse.json({
+        success: true,
+        channel: 'whatsapp',
+        destination: targetDestination,
+        formattedNumber,
+        otpCode: otp,
+        sentViaGateway: sentSuccess,
+        providerStatus: sentSuccess ? 'DELIVERED_TO_GATEWAY' : 'FALLBACK_READY',
+        providerError,
+        message: sentSuccess
+          ? `Kode OTP telah dikirim via WhatsApp ke ${targetDestination}`
+          : `KaoWhat gateway sedang offline/timeout. Kode OTP darurat Anda: ${otp}`,
+      });
     }
 
-    // 2. Integrasi Email OTP Gateway
+    // 2. Email Channel
     return NextResponse.json({
       success: true,
       channel: 'email',
       destination: targetDestination,
       otpCode: otp,
-      isSimulated: true,
-      message: `Kode OTP ${otp} berhasil dikirimkan ke email ${targetDestination}`,
+      message: `Kode OTP verifikasi: ${otp}`,
     });
 
   } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || 'Gagal mengirim OTP' },
+      { success: false, error: error.message || 'Gagal memproses OTP' },
       { status: 500 }
     );
   }
