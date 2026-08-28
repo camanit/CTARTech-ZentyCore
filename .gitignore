@@ -1,0 +1,48 @@
+# ==============================================================================
+# CTARTech ZentyCore — Root .gitignore
+# ==============================================================================
+
+# 1. Rust Build Outputs
+/target/
+**/*.rs.bk
+*.pdb
+
+# 2. Node.js & Next.js Build Outputs
+node_modules/
+.next/
+out/
+build/
+dist/
+.turbo/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# 3. Environment & Secrets (NEVER COMMIT PRODUCTION SECRETS)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+*.cert
+*.crt
+*.lic
+
+# 4. Internal IDE, System & Temporary Media
+.system_generated/
+.tempmediaStorage/
+.user_uploaded/
+scratch/
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 5. OS & Local Artifacts
+*.log

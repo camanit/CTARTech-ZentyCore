@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL Database (Tenants, Licenses, API Keys, Policies & Ledger)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: zentycore-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-zentycore}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-zentysecret}
+      POSTGRES_DB: ${POSTGRES_DB:-zentycore_db}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations/0001_initial_schema.sql:/docker-entrypoint-initdb.d/0001_initial_schema.sql:ro
+    networks:
+      - zentycore-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zentycore -d zentycore_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 2. Redis Cache (Sub-Millisecond Policy Caching & Ephemeral Session Tokens)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: zentycore-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - zentycore-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ----------------------------------------------------------------------------
+  # 3. ZentyCore Rust Core Engine (Control Plane, PEP Reverse Proxy & WebSockets)
+  # ----------------------------------------------------------------------------
+  core-engine:
+    build:
+      context: .
+      dockerfile: core-engine/Dockerfile
+    container_name: zentycore-engine
+    restart: unless-stopped
+    environment:
+      PORT: 8080
+      RUST_LOG: info
+      DATABASE_URL: postgres://${POSTGRES_USER:-zentycore}:${POSTGRES_PASSWORD:-zentysecret}@postgres:5432/${POSTGRES_DB:-zentycore_db}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - zentycore-net
+
+  # ----------------------------------------------------------------------------
+  # 4. Next.js Web Dashboard & SOC Control Interface
+  # ----------------------------------------------------------------------------
+  dashboard:
+    build:
+      context: ./dashboard-web
+      dockerfile: Dockerfile
+    container_name: zentycore-dashboard
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_URL: http://localhost:8080/api/v1
+      NEXT_PUBLIC_WS_URL: ws://localhost:8080/ws/soc-stream
+    ports:
+      - "3000:3000"
+    depends_on:
+      - core-engine
+    networks:
+      - zentycore-net
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  zentycore-net:
+    driver: bridge

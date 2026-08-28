@@ -1,0 +1,25 @@
+[workspace]
+members = [
+    "core-engine",
+    "modules/identity",
+    "modules/device",
+    "modules/network",
+    "modules/app-workload",
+    "modules/data-prot",
+    "modules/visibility",
+    "modules/response",
+    "modules/governance",
+    "modules/ai-engine",
+    "modules/licensing",
+    "modules/billing",
+    "modules/webhook",
+    "sdks/rust-sdk"
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+authors = ["CTARTech Team <security@ctartech.local>"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/ctartech/zentycore"

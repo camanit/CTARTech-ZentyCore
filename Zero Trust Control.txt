@@ -1,0 +1,1410 @@
+CTARTech-ZentyCore
+
+I. Arsitektur & Desain Modul (Microservices/Modular Monolith)
+Sistem ini dibagi menjadi 8 modul utama yang merefleksikan pilar-pilar kerangka kerja keamanan:
+
+1. Modul Identity & Access Management (IAM)
+Fungsi: Gerbang autentikasi dan manajemen hak akses pengguna.
+
+Fitur:
+
+Integrasi Multi-Factor Authentication (MFA) & Single Sign-On (SSO).
+
+Manajemen Peran (Role-Based Access Control / RBAC) dan Attribute-Based Access Control (ABAC).
+
+Peninjauan Akses Berkala (Access Reviews).
+
+2. Modul Device Compliance & Endpoint
+Fungsi: Memvalidasi tingkat keamanan dan kepatuhan perangkat yang mengakses sistem.
+
+Fitur:
+
+Pemeriksaan postur kesehatan perangkat (Device Health Checks).
+
+Integrasi data status keamanan dari EDR/XDR pihak ketiga.
+
+Manajemen profil configuration hardening.
+
+3. Modul Network Security & Segmentation
+Fungsi: Mengatur jalur komunikasi dan segmentasi trafik jaringan.
+
+Fitur:
+
+Manajemen aturan firewall terpusat.
+
+Kebijakan mikrosegmentasi virtual.
+
+Pemantauan dan keamanan DNS.
+
+4. Modul Application & Workload
+Fungsi: Mengamankan akses ke aplikasi, layanan mikro (microservices), dan lingkungan cloud.
+
+Fitur:
+
+Manajemen Web Application Firewall (WAF) & API Gateway.
+
+Manajemen rahasia aplikasi (secrets management).
+
+Pindai kerentanan aplikasi secara kontinu (Vulnerability Management).
+
+5. Modul Data Protection
+Fungsi: Mengamankan dan memantau pergerakan informasi sensitif.
+
+Fitur:
+
+Klasifikasi data otomatis berdasarkan tingkat sensitivitas.
+
+Pencegahan kebocoran data (Data Loss Prevention / DLP).
+
+Pengelolaan kunci enkripsi (KMS) dan kontrol akses database.
+
+6. Modul Visibility & SOC Monitoring
+Fungsi: Pusat kendali (single pane of glass) untuk pemantauan seluruh aktivitas sistem.
+
+Fitur:
+
+Pengumpulan dan normalisasi log terpusat (Log Management).
+
+Analisis perilaku pengguna dan entitas (UEBA).
+
+Integrasi Threat Intelligence.
+
+7. Modul Automated Response & SOAR
+Fungsi: Menangani insiden keamanan secara otomatis tanpa intervensi manual penuh.
+
+Fitur:
+
+Automated Containment (isolasi perangkat atau pencabutan sesi secara instan).
+
+Eksekusi alur penanganan insiden (Playbooks).
+
+8. Modul Governance & Policy Engine (Otak Sistem)
+Fungsi: Mengatur standar kepatuhan dan mengevaluasi kebijakan keamanan secara dinamis.
+
+Fitur:
+
+Manajemen risiko dan standar kebijakan (Policies & Standards).
+
+Pelaporan audit kepatuhan secara otomatis (Compliance Monitoring).
+
+II. Tahapan Alur Kerja (The Zero Trust Engine Workflow)
+Setiap permintaan akses yang masuk ke dalam sistem akan melewati 5 tahapan otomatis secara real-time:
+
+Request: Pengguna atau perangkat mengirimkan permintaan akses ke suatu layanan/data.
+
+Verify: Sistem secara paralel memvalidasi identitas (melalui Modul IAM) dan tingkat kepatuhan perangkat (melalui Modul Device).
+
+Authorize: Hak akses diberikan sekecil mungkin (least privilege) berdasarkan aturan yang telah ditetapkan di Policy Engine.
+
+Monitor: Aktivitas, durasi sesi, dan perilaku pengguna terus diawasi secara kontinu oleh Modul Visibility.
+
+Reassess: Jika platform mendeteksi anomali atau perubahan tingkat risiko (misalnya perubahan lokasi atau perilaku mencurigakan), akses akan secara otomatis disesuaikan atau dicabut (If risk changes, access is adjusted or removed).
+
+III. Roadmap Pengembangan (Menuju Open-Source)
+Agar proyek ini terstruktur dengan baik dan ramah bagi kontributor open-source, pembangunan dapat dibagi menjadi 3 fase utama:
+
+Fase 1: Fondasi & Core Engine (MVP)
+Membangun Policy Engine (otak pengambil keputusan Zero Trust).
+
+Mengembangkan Modul Identity (IAM) dan Modul Visibility dasar sebagai kerangka dasar pemantauan.
+
+Menyediakan API publik agar modul eksternal dapat terhubung.
+
+Fase 2: Integrasi Pilar Pendukung
+Mengembangkan Modul Device Compliance dan Modul Network/Segmentation.
+
+Mengintegrasikan Modul Application & Workload serta Data Protection.
+
+Merilis dokumentasi API dan arsitektur untuk publik (Open-Source Alpha Release).
+
+Fase 3: Otomasi, Respon, & Komunitas
+Membangun Modul Automated Response & SOAR untuk penanganan ancaman otomatis.
+
+Mengembangkan Modul Governance untuk kebutuhan audit enterprise.
+
+Membuka repositori secara luas, menyediakan contribution guidelines, dan membangun komunitas pengembang open-source.
+
+
+
+
+pen API (API-First Architecture) untuk menghubungkan seluruh modul Zero Trust adalah keputusan yang sangat tepat dan modern. Dengan arsitektur ini, setiap modul (mulai dari Identity, Device, hingga Visibility) dapat berdiri sebagai layanan mikro (microservice) yang mandiri namun tetap bisa berkomunikasi secara mulus melalui protokol HTTP/gRPC berbasis standar terbuka.
+
+Ditambah lagi, menggunakan bahasa Rust untuk pembuatan SDK (Software Development Kit) memberikan keuntungan performa yang luar biasa: memori yang sangat aman (memory-safe without garbage collector), eksekusi super cepat, dan sangat andal untuk sistem keamanan enterprise skala besar.
+
+Berikut adalah rancangan implementasi Open API beserta contoh kerangka file SDK dalam bahasa Rust.
+
+I. Konsep Desain Open API untuk Sistem Zero Trust
+Setiap modul dalam sistem Zero Trust mengekspos REST/gRPC API yang terdokumentasi (menggunakan spesifikasi OpenAPI 3.0 / Swagger). Contoh titik akhir (endpoints) utama yang harus disediakan oleh masing-masing modul:
+
+Identity Module: POST /api/v1/identity/verify (Memvalidasi token dan klaim pengguna)
+
+Device Module: POST /api/v1/device/check-compliance (Mengecek status kesehatan endpoint)
+
+Policy Engine (Core): POST /api/v1/policy/evaluate (Mengevaluasi seluruh parameter akses dari 5 tahapan Zero Trust)
+
+Visibility Module: POST /api/v1/telemetry/log (Menerima dan mencatat log aktivitas sistem)
+
+II. Contoh Kerangka SDK Rust (zt_sdk)
+SDK berbasis Rust ini dapat digunakan oleh aplikasi atau layanan lain di ekosistem Anda untuk dengan mudah berinteraksi dengan Policy Engine dan modul Zero Trust.
+
+1. Struktur Proyek SDK (Cargo.toml)
+ini,toml
+[package]
+name = "zt_sdk"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.0", features = ["full"] }
+thiserror = "1.0"
+
+
+2. Implementasi KODE SDK (src/lib.rs)
+rust
+
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum ZtError {
+    #[error("HTTP request failed: {0}")]
+    HttpError(#[from] reqwest::Error),
+    #[error("API error response: {0}")]
+    ApiError(String),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AccessRequest {
+    pub user_id: String,
+    pub device_id: String,
+    pub resource: String,
+    pub ip_address: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AccessResponse {
+    pub allowed: bool,
+    pub reason: String,
+    pub risk_score: u8,
+}
+
+#[derive(Clone)]
+pub struct ZeroTrustClient {
+    client: Client,
+    base_url: String,
+    api_key: String,
+}
+
+impl ZeroTrustClient {
+    /// Membuat instance baru dari Zero Trust SDK Client
+    pub fn new(base_url: &str, api_key: &str) -> Self {
+        Self {
+            client: Client::new(),
+            base_url: base_url.to_string(),
+            api_key: api_key.to_string(),
+        }
+    }
+
+    /// Fungsi utama untuk mengevaluasi izin akses (Sesuai tahapan Verify & Authorize)
+    pub async fn evaluate_access(&self, request: &AccessRequest) -> Result<AccessResponse, ZtError> {
+        let url = format!("{}/api/v1/policy/evaluate", self.base_url);
+
+        let res = self.client
+            .post(&url)
+            .header("Authorization", format!("Bearer {}", self.api_key))
+            .header("Content-Type", "application/json")
+            .json(request)
+            .send()
+            .await?;
+
+        if res.status().is_success() {
+            let evaluation: AccessResponse = res.json().await?;
+            Ok(evaluation)
+        } else {
+            let status = res.status();
+            let error_text = res.text().await.unwrap_or_default();
+            Err(ZtError::ApiError(format!("Status {}: {}", status, error_text)))
+        }
+    }
+}
+
+3. Contoh Penggunaan SDK di Aplikasi Lain (src/main.rs)
+
+use zt_sdk::{ZeroTrustClient, AccessRequest};
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Inisialisasi klien SDK mengarah ke Core Policy Engine CTAR
+    let zt_client = ZeroTrustClient::new("https://api.zt-core.ctar.local", "secret_api_key_123");
+
+    let request = AccessRequest {
+        user_id: "user_abdul_hajee".to_string(),
+        device_id: "dev_linux_workstation_01".to_string(),
+        resource: "prod-database-cluster".to_string(),
+        ip_address: "192.168.1.50".to_string(),
+    };
+
+    println!("Mengirim permintaan evaluasi Zero Trust...");
+
+    match zt_client.evaluate_access(&request).await {
+        Ok(response) => {
+            if response.allowed {
+                println!("Akses DIIZINKAN. Alasan: {}", response.reason);
+            } else {
+                println!("Akses DITOLAK! Risiko terdeteksi: Skor {}, Alasan: {}", response.risk_score, response.reason);
+            }
+        }
+        Err(e) => eprintln!("Gagal terhubung ke Zero Trust Engine: {}", e),
+    }
+
+    Ok(())
+}
+
+III. Keunggulan Strategi Ini untuk CTAR & Proyek Open-Source
+Bahasa Pemrograman Netral: Karena berbasis Open API, pengembang lain nantinya bisa membuat SDK pendukung dalam bahasa lain (seperti Python, Go, atau TypeScript) dengan mudah mengikuti spesifikasi API yang Anda tetapkan.
+
+Performa Tinggi di Sisi Core: Menggunakan Rust untuk inti evaluasi kebijakan (Policy Engine) dan SDK klien memastikan latensi validasi akses berada di tingkat milidetik, yang sangat penting agar tidak memperlambat produktivitas pengguna akhir.
+
+Mudah Didistribusikan: Repositori SDK Rust ini nantinya bisa dipublish langsung ke crates.io sebagai open-source crate, sehingga memudahkan adopsi bagi komunitas pengembang keamanan siber.
+
+Pendekatan ini dapat diterapkan dengan beberapa prinsip arsitektur berikut:
+
+1. Pola Komunikasi Antar-Modul (API-First & Microservices)
+Setiap modul tidak perlu dibangun sebagai satu aplikasi raksasa yang kaku. Dengan Open API, setiap modul memiliki batasan tugas (domain boundary) yang jelas:
+
+Modul Identity menyediakan endpoint verifikasi token.
+
+Modul Device menyediakan endpoint validasi status endpoint.
+
+Policy Engine bertindak sebagai konduktor yang memanggil API dari modul-modul tersebut secara paralel setiap kali ada permintaan akses masuk.
+
+2. Keuntungan Jika Dijadikan Proyek Open-Source
+Ekosistem Kontributor yang Luas: Pengembang lain di luar CTAR bisa berkontribusi membuat modul tambahan atau integrasi pihak ketiga (misalnya membuat plugin penghubung ke alat keamanan tertentu) tanpa harus mengubah kode inti (core engine).
+
+Fleksibilitas Integrasi: Perusahaan lain yang ingin mengadopsi platform Zero Trust buatan CTAR dapat dengan mudah menyambungkannya ke infrastruktur eksisting mereka menggunakan bahasa pemrograman apa pun yang mereka sukai berkat spesifikasi API yang terbuka.
+
+3. Hal Penting yang Harus Diperhatikan
+Karena kedelapan modul ini saling terhubung melalui Open API, ada dua aspek krusial yang wajib diperkuat sejak awal:
+
+Autentikasi Antar-Layanan (Service-to-Service Auth): Komunikasi antar-modul harus dilindungi menggunakan Mutual TLS (mTLS) atau token API yang sangat ketat agar tidak bisa disadap oleh pihak luar.
+
+Manajemen Rate Limiting & Latency: Karena proses Verify dan Authorize harus terjadi secara real-time pada setiap request pengguna, performa API harus dijaga agar latensinya sekecil mungkin (di sinilah penggunaan bahasa seperti Rust pada bagian core memberikan keuntungan besar).
+
+
+Modul 1: Identity (Identitas)
+Modul ini bertindak sebagai gerbang pertama untuk memverifikasi siapa pengguna atau sistem yang mencoba masuk.
+
+Fungsi Utama: Mengelola autentikasi terpusat, klaim token, dan tingkat akses pengguna.
+
+Fitur & Teknologi Pendukung: IAM, MFA, SSO, PAM, RBAC, dan Access Reviews.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/identity/authenticate (Memproses kredensial awal pengguna)
+
+POST /api/v1/identity/verify-mfa (Validasi kode atau token Multi-Factor Authentication)
+
+GET /api/v1/identity/roles/{user_id} (Mengambil daftar peran dan hak akses pengguna)
+
+Modul 2: Device (Perangkat)
+Setelah identitas dikenali, modul ini memastikan perangkat yang digunakan aman dan tidak membawa risiko.
+
+Fungsi Utama: Memvalidasi status kesehatan, kepatuhan (compliance), dan konfigurasi keamanan perangkat.
+
+Fitur & Teknologi Pendukung: EDR/XDR, MDM, Device Compliance, dan Configuration Hardening.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/device/check-compliance (Mengecek apakah perangkat memenuhi standar keamanan perusahaan)
+
+GET /api/v1/device/status/{device_id} (Mengambil data status terakhir dari agen EDR/MDM)
+
+Modul 3: Network (Jaringan)
+Modul ini mengatur bagaimana jalur komunikasi data diamankan di dalam maupun luar perimeter perusahaan.
+
+Fungsi Utama: Membatasi pergerakan lateral (lateral movement) dan mengamankan jalur transmisi data.
+
+Fitur & Teknologi Pendukung: Firewall, NAC, Segmentation, ZTNA/SASE, dan DNS Security.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/network/validate-segment (Memeriksa izin akses subnet atau zona jaringan)
+
+GET /api/v1/network/firewall-rules (Menarik kebijakan mikrosegmentasi aktif)
+
+Modul 4: Application & Workload (Aplikasi & Beban Kerja)
+Fokus pada pengamanan akses ke aplikasi internal, API, maupun lingkungan cloud-native.
+
+Fungsi Utama: Melindungi titik akhir aplikasi dari serangan siber dan eksploitasi kode.
+
+Fitur & Teknologi Pendukung: WAF, API Security, DevSecOps, Vulnerability Management, dan Cloud Workload Protection.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/app/inspect-payload (Memeriksa integritas atau ancaman pada request API)
+
+GET /api/v1/app/vulnerabilities (Meninjau daftar kerentanan pada workload aplikasi)
+
+Modul 5: Data
+Modul pengamanan lapis akhir yang menjaga kerahasiaan dan integritas informasi sensitif.
+
+Fungsi Utama: Melakukan enkripsi, klasifikasi, serta pembatasan akses langsung ke basis data.
+
+Fitur & Teknologi Pendukung: Klasifikasi data, DLP, Enkripsi, KMS (Key Management Service), dan Database Access Controls.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/data/classify (Menentukan tingkat sensitivitas data yang diunggah)
+
+POST /api/v1/data/decrypt-token (Meminta dekripsi data menggunakan kunci aman dari KMS)
+
+Modul 6: Visibility (Visibilitas)
+Pusat pengawasan (single pane of glass) yang merekam seluruh aktivitas dari modul-modul di atas.
+
+Fungsi Utama: Mengumpulkan log secara terpusat dan mendeteksi anomali perilaku.
+
+Fitur & Teknologi Pendukung: SIEM, UEBA, Threat Intelligence, SOC Monitoring, dan Log Management.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/telemetry/ingest (Menerima kiriman log dari modul lain)
+
+GET /api/v1/telemetry/anomalies (Menampilkan daftar peringatan anomali perilaku UEBA)
+
+Modul 7: Response (Respons)
+Modul eksekusi otomatis ketika sistem mendeteksi adanya ancaman atau pelanggaran keamanan.
+
+Fungsi Utama: Menanggulangi insiden secara instan tanpa harus menunggu tindakan manual.
+
+Fitur & Teknologi Pendukung: SOAR, Incident Response, Automated Containment, dan Playbooks.
+
+Contoh Open API Endpoints:
+
+POST /api/v1/response/trigger-playbook (Menjalankan skrip otomatis penanganan insiden)
+
+POST /api/v1/response/isolate-device (Mengirim perintah isolasi langsung ke perangkat yang terinfeksi)
+
+Modul 8: Governance (Tata Kelola)
+Fondasi manajemen risiko dan kepatuhan regulasi secara menyeluruh.
+
+Fungsi Utama: Memastikan seluruh sistem berjalan sesuai dengan standar kebijakan perusahaan dan regulasi eksternal.
+
+Fitur & Teknologi Pendukung: Policies & Standards, Risk Management, Compliance Monitoring, serta Audits & Reporting.
+
+Contoh Open API Endpoints:
+
+GET /api/v1/governance/compliance-status (Menghasilkan laporan tingkat kepatuhan otomatis)
+
+PUT /api/v1/governance/policies (Memperbarui aturan standar kebijakan keamanan pusat)
+
+Delapan modul tersebut diintegrasikan ke dalam satu aplikasi terpusat (biasanya disebut sebagai Unified Control Plane atau Central Dashboard) yang memegang kendali penuh atas konsep Zero Trust ini.
+
+Jadi, alih-alih membuka banyak aplikasi yang terpisah, dashboard utama ini bertindak sebagai pusat komando yang:
+
+Menyatukan Semua Pilar: Modul Identity, Device, Network, Application, Data, Visibility, Response, dan Governance terhubung ke dalam satu sistem operasi keamanan.
+
+Menjalankan Alur Kerja Otomatis: Mengatur alur Request ➔ Verify ➔ Authorize ➔ Monitor ➔ Reassess secara real-time di balik layar.
+
+Memberikan Visibilitas Utuh: Tim IT atau Security Operations Center (SOC) bisa memantau kesehatan sistem, mendeteksi anomali, hingga mengeksekusi tindakan respons (SOAR) langsung dari satu layar (single pane of glass).
+
+
+Terkait infrastruktur, rencana menanamkan sistem ini di Cloud / VPS dengan arsitektur Web as a Service (SaaS / Self-Hosted Service) adalah pilihan yang paling tepat dan profesional.
+
+Berikut adalah gambaran bagaimana ekosistem layanan tersebut akan berjalan secara teknis:
+
+1. Arsitektur Deployment di VPS / Cloud
+Backend Core (Rust): Berjalan di background sebagai layanan sistem (systemd service atau menggunakan Docker container) untuk menangani pemrosesan logika Zero Trust dan evaluasi kebijakan dengan latensi rendah.
+
+Open API Gateway: Berfungsi sebagai pintu masuk utama yang mengatur seluruh komunikasi antar-modul dan menerima request dari aplikasi luar atau SDK klien.
+
+Frontend Dashboard (Web Service): Dibangun menggunakan framework web modern (seperti Next.js, Vue, atau Svelte) yang di-host di VPS yang sama untuk menyajikan tampilan single pane of glass bagi administrator.
+
+2. Alur Akses Layanan (Service Flow)
+Untuk Penggunaan Internal (CTAR): Aplikasi atau infrastruktur internal Anda cukup memanggil SDK Rust yang terhubung ke endpoint API VPS Anda untuk memvalidasi setiap hak akses secara real-time.
+
+Untuk Proyek Open-Source (Publik): Pengguna luar nantinya bisa mengunduh (clone) repositori proyek Anda, lalu melakukan self-hosting (menjalankan sendiri di VPS atau Docker mereka masing-masing) atau memanfaatkan versi cloud jika Anda ingin menyediakannya sebagai layanan publik.
+
+Dengan fondasi infrastruktur seperti ini, proyek yang kita rancang tidak hanya sekadar konsep teori di atas kertas, tetapi menjadi produk perangkat lunak keamanan siber yang nyata dan fungsional.
+
+
+Struktur folder dasar ini dirancang agar bersih, mudah diskalakan, dan siap menampung delapan modul Open API yang telah dibahas:
+zt-framework/
+├── Cargo.toml               # Workspace utama Rust
+├── core-engine/             # Modul 8: Governance & Policy Engine (Otak sistem)
+│   ├── Cargo.toml
+│   └── src/
+│       └── main.rs          # Titik utama evaluator kebijakan & API Gateway
+├── modules/
+│   ├── identity/            # Modul 1: Identity & Access
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   ├── device/              # Modul 2: Device Compliance
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   ├── network/             # Modul 3: Network Security
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   ├── app-workload/        # Modul 4: Application & Workload
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   ├── data-prot/           # Modul 5: Data Protection
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   ├── visibility/          # Modul 6: Visibility & SOC Log
+│   │   ├── Cargo.toml
+│   │   └── src/lib.rs
+│   └── response/            # Modul 7: Automated Response (SOAR)
+│       ├── Cargo.toml
+│       └── src/lib.rs
+└── sdks/
+    └── rust-sdk/            # SDK klien untuk integrasi aplikasi luar
+        ├── Cargo.toml
+        └── src/lib.rs
+
+Konfigurasi Workspace Awal (Cargo.toml Utama)
+File konfigurasi utama di direktori root VPS Anda akan mengelola seluruh sub-modul di atas agar bisa dikompilasi secara bersamaan:
+
+ini. toml
+
+[workspace]
+members = [
+    "core-engine",
+    "modules/identity",
+    "modules/device",
+    "modules/network",
+    "modules/app-workload",
+    "modules/data-prot",
+    "modules/visibility",
+    "modules/response",
+    "sdks/rust-sdk"
+]
+resolver = "2"
+
+
+Dengan struktur workspace Rust seperti ini, Anda bisa membangun sistem secara bertahap—mulai dari mematangkan core-engine dan modul identity, lalu menyambungkan modul-modul berikutnya secara paralel.
+
+1. Konfigurasi Modul Core (core-engine/Cargo.toml)
+
+[package]
+name = "core_engine"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Otak Zero Trust (core-engine/src/main.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
+
+#[derive(Deserialize, Debug)]
+struct EvaluationRequest {
+    user_id: String,
+    device_id: String,
+    resource: String,
+    ip_address: String,
+}
+
+#[derive(Serialize, Debug)]
+struct EvaluationResponse {
+    allowed: bool,
+    risk_score: u8,
+    reason: String,
+}
+
+#[tokio::main]
+async fn main() {
+    // Membangun rute Open API untuk Core Engine
+    let app = Router::new()
+        .route("/api/v1/policy/evaluate", post(evaluate_policy_handler));
+
+    // Menjalankan server di VPS pada port 8080
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    println!("CTAR Zero Trust Core Engine berjalan di http://{}", addr);
+
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+
+/// Handler utama untuk mengevaluasi kelayakan akses (5 Tahapan Zero Trust)
+async fn evaluate_policy_handler(
+    Json(payload): Json<EvaluationRequest>,
+) -> Result<Json<EvaluationResponse>, StatusCode> {
+    println!("Menerima permintaan akses dari User: {} untuk Resource: {}", payload.user_id, payload.resource);
+
+    // Simulasi Evaluasi Kebijakan (Logika Zero Trust Dasar)
+    // Di sini nantinya hasil cek dari modul Identity & Device akan digabungkan
+    let mut risk_score = 10; // Skor risiko awal (rendah)
+    let mut allowed = true;
+    let mut reason = "Akses disetujui: Semua parameter keamanan terpenuhi.".to_string();
+
+    // Contoh aturan sederhana: Blokir jika IP mencurigakan atau simulasi risiko tinggi
+    if payload.ip_address.starts_with("192.168.99.") {
+        risk_score = 85;
+        allowed = false;
+        reason = "Akses ditolak: Terdeteksi dari subnet berisiko tinggi.".to_string();
+    }
+
+    let response = EvaluationResponse {
+        allowed,
+        risk_score,
+        reason,
+    };
+
+    Ok(Json(response))
+}
+
+Modul 1: Identity & Access Management (IAM).
+
+Modul ini bertindak sebagai gerbang validasi identitas pertama sebelum Core Engine mengizinkan akses ke sumber daya. Dalam implementasinya menggunakan Rust, modul ini dapat berdiri sebagai layanan mikro terpisah yang menyediakan API verifikasi kredensial dan token.
+
+1. Konfigurasi Modul Identity (modules/identity/Cargo.toml)
+
+[package]
+name = "zt_identity"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Modul Identity (modules/identity/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct IdentityCheckRequest {
+    pub user_id: String,
+    pub token: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct IdentityCheckResponse {
+    pub authenticated: bool,
+    pub role: String,
+    pub mfa_verified: bool,
+}
+
+/// Membuat router API untuk Modul Identity
+pub fn identity_router() -> Router {
+    Router::new()
+        .route("/api/v1/identity/verify", post(verify_identity_handler))
+}
+
+async fn verify_identity_handler(
+    Json(payload): Json<IdentityCheckRequest>,
+) -> Result<Json<IdentityCheckResponse>, StatusCode> {
+    println!("Memverifikasi identitas untuk User: {}", payload.user_id);
+
+    // Simulasi validasi token atau klaim IAM
+    let authenticated = payload.token == "valid_secure_token_abc";
+    let role = if authenticated { "Administrator".to_string() } else { "Guest".to_string() };
+    let mfa_verified = authenticated;
+
+    let response = IdentityCheckResponse {
+        authenticated,
+        role,
+        mfa_verified,
+    };
+
+    Ok(Json(response))
+}
+
+Langkah Selanjutnya
+Nantinya, Core Engine di server utama akan memanggil endpoint /api/v1/identity/verify dari modul ini secara otomatis ketika mengevaluasi tahap Verify pada alur Zero Trust.
+
+Berikutnya adalah Modul 2: Device Compliance yang bertugas memvalidasi tingkat keamanan dan kesehatan perangkat sebelum sistem mengizinkan akses penuh.
+
+1. Konfigurasi Modul Device (modules/device/Cargo.toml)
+
+[package]
+name = "zt_device"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Modul Device (modules/device/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct DeviceCheckRequest {
+    pub device_id: String,
+    pub os_version: String,
+    pub antivirus_active: bool,
+    pub disk_encrypted: bool,
+}
+
+#[derive(Serialize, Debug)]
+pub struct DeviceCheckResponse {
+    pub compliant: bool,
+    pub risk_level: String,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Device
+pub fn device_router() -> Router {
+    Router::new()
+        .route("/api/v1/device/check-compliance", post(check_device_compliance_handler))
+}
+
+async fn check_device_compliance_handler(
+    Json(payload): Json<DeviceCheckRequest>,
+) -> Result<Json<DeviceCheckResponse>, StatusCode> {
+    println!("Menganalisis kepatuhan perangkat: {}", payload.device_id);
+
+    // Aturan validasi kepatuhan Zero Trust untuk perangkat
+    let mut compliant = true;
+    let mut risk_level = "Low".to_string();
+    let mut message = "Perangkat memenuhi seluruh standar keamanan.".to_string();
+
+    if !payload.antivirus_active || !payload.disk_encrypted {
+        compliant = false;
+        risk_level = "High".to_string();
+        message = "Perangkat ditolak: Antivirus tidak aktif atau disk belum terenkripsi.".to_string();
+    }
+
+    let response = DeviceCheckResponse {
+        compliant,
+        risk_level,
+        message,
+    };
+
+    Ok(Json(response))
+}
+
+Modul 3: Network Security yang bertugas memantau dan memvalidasi izin jalur komunikasi jaringan serta aturan mikrosegmentasi (segmentation & firewall policies) pada setiap permintaan akses.
+
+1. Konfigurasi Modul Network (modules/network/Cargo.toml)
+
+[package]
+name = "zt_network"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+2. Implementasi Logika Modul Network (modules/network/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct NetworkCheckRequest {
+    pub ip_address: String,
+    pub subnet_target: String,
+    pub protocol: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct NetworkCheckResponse {
+    pub allowed: bool,
+    pub zone: String,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Network Security
+pub fn network_router() -> Router {
+    Router::new()
+        .route("/api/v1/network/validate-segment", post(validate_network_segment_handler))
+}
+
+async fn validate_network_segment_handler(
+    Json(payload): Json<NetworkCheckRequest>,
+) -> Result<Json<NetworkCheckResponse>, StatusCode> {
+    println!("Memvalidasi jalur jaringan dari IP: {} ke Subnet: {}", payload.ip_address, payload.subnet_target);
+
+    // Simulasi aturan mikrosegmentasi jaringan Zero Trust
+    let mut allowed = true;
+    let mut zone = "Internal-Trusted".to_string();
+    let mut message = "Akses jaringan diizinkan melalui zona aman.".to_string();
+
+    // Contoh pembatasan akses lintas zona
+    if payload.subnet_target == "production-restricted" && !payload.ip_address.starts_with("10.0.") {
+        allowed = false;
+        zone = "Untrusted-Edge".to_string();
+        message = "Akses jaringan ditolak: IP luar tidak diizinkan masuk ke subnet produksi.".to_string();
+    }
+
+    let response = NetworkCheckResponse {
+        allowed,
+        zone,
+        message,
+    };
+
+    Ok(Json(response))
+}
+
+Modul 4: Application & Workload, yang bertugas mengamankan jalur akses ke aplikasi internal, layanan microservices, serta mendeteksi kerentanan pada beban kerja (workload) berbasis cloud.
+
+1. Konfigurasi Modul Application & Workload (modules/app-workload/Cargo.toml)
+
+[package]
+name = "zt_app_workload"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Modul Application & Workload (modules/app-workload/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct AppInspectionRequest {
+    pub app_id: String,
+    pub endpoint_target: String,
+    pub payload_signature: String,
+    pub has_active_vulnerabilities: bool,
+}
+
+#[derive(Serialize, Debug)]
+pub struct AppInspectionResponse {
+    pub safe_to_access: bool,
+    pub waf_action: String,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Application & Workload
+pub fn app_workload_router() -> Router {
+    Router::new()
+        .route("/api/v1/app/inspect-payload", post(inspect_app_payload_handler))
+}
+
+async fn inspect_app_payload_handler(
+    Json(payload): Json<AppInspectionRequest>,
+) -> Result<Json<AppInspectionResponse>, StatusCode> {
+    println!("Memeriksa keamanan aplikasi & workload untuk: {}", payload.app_id);
+
+    let mut safe_to_access = true;
+    let mut waf_action = "Allow".to_string();
+    let mut message = "Payload aplikasi bersih dan aman dari eksploitasi.".to_string();
+
+    // Simulasi pengecekan WAF atau kerentanan workload
+    if payload.has_active_vulnerabilities || payload.payload_signature.contains("malicious_sqli_pattern") {
+        safe_to_access = false;
+        waf_action = "Block".to_string();
+        message = "Akses aplikasi ditolak: Terdeteksi pola serangan injeksi atau kerentanan aktif pada workload.".to_string();
+    }
+
+    let response = AppInspectionResponse {
+        safe_to_access,
+        waf_action,
+        message,
+    };
+
+    Ok(Json(response))
+}
+
+
+Berikutnya adalah Modul 5: Data Protection, yang bertugas mengamankan informasi sensitif, mengelola enkripsi, serta melakukan pencegahan kebocoran data (Data Loss Prevention / DLP) dan kontrol akses tingkat basis data.
+
+1. Konfigurasi Modul Data Protection (modules/data-prot/Cargo.toml)
+[package]
+name = "zt_data_protection"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+2. Implementasi Logika Modul Data Protection (modules/data-prot/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct DataAccessRequest {
+    pub data_classification: String, // Contoh: "Confidential", "Public", "Restricted"
+    pub user_clearance_level: u8,    // 1 (Low), 2 (Medium), 3 (High/Admin)
+    pub has_dlp_violation: bool,
+}
+
+#[derive(Serialize, Debug)]
+pub struct DataAccessResponse {
+    pub permit_access: bool,
+    pub encryption_required: bool,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Data Protection
+pub fn data_protection_router() -> Router {
+    Router::new()
+        .route("/api/v1/data/validate-access", post(validate_data_access_handler))
+}
+
+async fn validate_data_access_handler(
+    Json(payload): Json<DataAccessRequest>,
+) -> Result<Json<DataAccessResponse>, StatusCode> {
+    println!("Memvalidasi perlindungan data dengan klasifikasi: {}", payload.data_classification);
+
+    let mut permit_access = true;
+    let encryption_required = payload.data_classification == "Confidential" || payload.data_classification == "Restricted";
+    let mut message = "Akses data diizinkan sesuai tingkat otorisasi.".to_string();
+
+    // Aturan keamanan data: Data Restricted hanya boleh diakses oleh clearance level 3
+    if payload.data_classification == "Restricted" && payload.user_clearance_level < 3 {
+        permit_access = false;
+        message = "Akses data ditolak: Level otorisasi pengguna tidak mencukupi untuk data berstatus Restricted.".to_string();
+    } else if payload.has_dlp_violation {
+        permit_access = false;
+        message = "Akses data diblokir: Terdeteksi potensi pelanggaran pencegahan kebocoran data (DLP).".to_string();
+    }
+
+    let response = DataAccessResponse {
+        permit_access,
+        encryption_required,
+        message,
+    };
+
+    Ok(Json(response))
+}
+
+Dengan modul kelima ini, kerangka Zero Trust kita sudah melindungi lapis informasi paling dalam—memastikan data sensitif tidak bocor atau diakses oleh pihak yang tidak memiliki izin memadai.
+
+
+Berikutnya adalah Modul 6: Visibility & SOC Monitoring, yang bertugas mengumpulkan log secara terpusat (Log Management), memantau aktivitas sistem, serta mendeteksi anomali perilaku pengguna (UEBA) secara real-time.
+
+1. Konfigurasi Modul Visibility (modules/visibility/Cargo.toml)
+
+[package]
+name = "zt_visibility"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+
+2. Implementasi Logika Modul Visibility (modules/visibility/src/lib.rs)
+
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct TelemetryLogRequest {
+    pub source_module: String,
+    pub event_type: String,
+    pub severity: String, // "INFO", "WARNING", "CRITICAL"
+    pub description: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct TelemetryLogResponse {
+    pub logged: bool,
+    pub anomaly_detected: bool,
+    pub alert_dispatched: bool,
+}
+
+/// Membuat router API untuk Modul Visibility & SOC Monitoring
+pub fn visibility_router() -> Router {
+    Router::new()
+        .route("/api/v1/telemetry/ingest", post(ingest_telemetry_handler))
+}
+
+async fn ingest_telemetry_handler(
+    Json(payload): Json<TelemetryLogRequest>,
+) -> Result<Json<TelemetryLogResponse>, StatusCode> {
+    println!("[SOC LOG] Modul: {} | Tipe: {} | Level: {} | Info: {}", 
+        payload.source_module, payload.event_type, payload.severity, payload.description);
+
+    let mut anomaly_detected = false;
+    let mut alert_dispatched = false;
+
+    // Deteksi anomali sederhana berdasarkan tingkat keparahan log
+    if payload.severity == "CRITICAL" {
+        anomaly_detected = true;
+        alert_dispatched = true;
+        println!("PERINGATAN SOC: Anomali kritis terdeteksi dari modul {}!", payload.source_module);
+    }
+
+    let response = TelemetryLogResponse {
+        logged: true,
+        anomaly_detected,
+        alert_dispatched,
+    };
+
+    Ok(Json(response))
+}
+
+
+Dengan modul keenam ini, semua aktivitas dari modul-modul sebelumnya dapat direkam ke dalam satu pusat pengawasan (single pane of glass), sehingga tim SOC dapat memantau kesehatan sistem secara transparan.
+
+
+Berikutnya adalah Modul 7: Automated Response (SOAR), yang bertugas menangani dan menanggulangi anomali atau ancaman keamanan secara otomatis tanpa harus selalu menunggu intervensi manual dari tim SOC.
+
+1. Konfigurasi Modul Response (modules/response/Cargo.toml)
+
+[package]
+name = "zt_response"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Modul Automated Response (modules/response/src/lib.rs)
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Debug)]
+pub struct IncidentReport {
+    pub threat_id: String,
+    pub target_device: String,
+    pub severity: String,
+    pub auto_mitigation_enabled: bool,
+}
+
+#[derive(Serialize, Debug)]
+pub struct IncidentActionResponse {
+    pub action_taken: String,
+    pub status: String,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Automated Response (SOAR)
+pub fn response_router() -> Router {
+    Router::new()
+        .route("/api/v1/response/trigger-playbook", post(trigger_playbook_handler))
+}
+
+async fn trigger_playbook_handler(
+    Json(payload): Json<IncidentReport>,
+) -> Result<Json<IncidentActionResponse>, StatusCode> {
+    println!("[SOAR PLAYBOOK] Menerima laporan insiden: {} untuk Perangkat: {}", payload.threat_id, payload.target_device);
+
+    let mut action_taken = "None".to_string();
+    let mut status = "Idle".to_string();
+    let mut message = "Tidak ada tindakan otomatis yang dijalankan.".to_string();
+
+    // Eksekusi skrip respons otomatis berdasarkan tingkat keparahan ancaman
+    if payload.auto_mitigation_enabled && (payload.severity == "CRITICAL" || payload.severity == "HIGH") {
+        action_taken = format!("Isolasi Perangkat & Pencabutan Sesi ({})", payload.target_device);
+        status = "Success".to_string();
+        message = "Playbook darurat berhasil dieksekusi: Perangkat diisolasi dari jaringan perusahaan secara instan.".to_string();
+        println!("AKSI OTOMATIS: {}", message);
+    } else {
+        message = "Mitigasi otomatis dilewati atau tingkat ancaman di bawah ambang batas kritis.".to_string();
+    }
+
+    let response = IncidentActionResponse {
+        action_taken,
+        status,
+        message,
+    };
+
+    Ok(Json(response))
+}
+
+Dengan modul ketujuh ini, sistem tidak hanya mendeteksi atau mencegah akses ilegal, tetapi juga mampu melakukan tindakan penanggulangan darurat secara mandiri dalam hitungan detik.
+
+Modul 8: Governance & Policy Engine, yang berfungsi sebagai pusat pengaturan standar kebijakan keamanan (policies & standards) dan pemantauan tingkat kepatuhan regulasi (compliance monitoring) secara menyeluruh.
+
+1. Konfigurasi Modul Governance (modules/governance/Cargo.toml)
+
+[package]
+name = "zt_governance"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.6"
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+2. Implementasi Logika Modul Governance (modules/governance/src/lib.rs)
+
+use axum::{
+    routing::{get, put},
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+
+#[derive(Serialize, Debug)]
+pub struct ComplianceReport {
+    pub framework_standard: String,
+    pub compliance_score_percentage: u8,
+    pub audit_status: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct UpdatePolicyRequest {
+    pub policy_name: String,
+    pub new_rule_value: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct UpdatePolicyResponse {
+    pub updated: bool,
+    pub message: String,
+}
+
+/// Membuat router API untuk Modul Governance & Policy
+pub fn governance_router() -> Router {
+    Router::new()
+        .route("/api/v1/governance/compliance-status", get(get_compliance_status_handler))
+        .route("/api/v1/governance/policies", put(update_policy_handler))
+}
+
+async fn get_compliance_status_handler() -> Result<Json<ComplianceReport>, StatusCode> {
+    println!("[GOVERNANCE] Menghasilkan laporan audit kepatuhan otomatis...");
+
+    // Simulasi penilaian kepatuhan standar ISO/IEC 27001 atau NIST Zero Trust
+    let report = ComplianceReport {
+        framework_standard: "NIST SP 800-207 (Zero Trust Architecture)".to_string(),
+        compliance_score_percentage: 94,
+        audit_status: "Passed - Optimal".to_string(),
+    };
+
+    Ok(Json(report))
+}
+
+async fn update_policy_handler(
+    Json(payload): Json<UpdatePolicyRequest>,
+) -> Result<Json<UpdatePolicyResponse>, StatusCode> {
+    println!("[GOVERNANCE] Memperbarui kebijakan pusat: {} menjadi -> {}", payload.policy_name, payload.new_rule_value);
+
+    let response = UpdatePolicyResponse {
+        updated: true,
+        message: format!("Kebijakan '{}' berhasil diperbarui dan disebarkan ke seluruh modul.", payload.policy_name),
+    };
+
+    Ok(Json(response))
+}
+
+Rangkaian 8 Modul Selesai!
+Dengan selesainya Modul 8 ini, seluruh kerangka fondasi API untuk kedepannya sudah lengkap tersusun dalam arsitektur modular berbasis Rust. Sistem ini siap digabungkan dengan Core Engine utama untuk menjadi satu kesatuan platform Zero Trust yang handal.
+
+
+Satu pusat kendali (Core Engine) melalui Unified API Gateway. Dengan cara ini, cukup satu titik endpoint utama di VPS Anda yang menerima semua permintaan, lalu mesin utama secara otomatis mendistribusikan atau mengevaluasi alurnya ke masing-masing modul.
+
+Berikut adalah kode penggabungan (merge) router dari kedelapan modul ke dalam core-engine/src/main.rs:
+
+use axum::{
+    routing::post,
+    extract::Json,
+    http::StatusCode,
+    Router,
+};
+use serde::{Deserialize, Serialize};
+use std::net::SocketAddr;
+
+// Mengimpor router dari setiap modul yang sudah kita buat sebelumnya
+// (Pastikan sub-krate didaftarkan sebagai dependencies di Cargo.toml core-engine)
+
+#[tokio::main]
+async fn main() {
+    // Membangun Unified API Gateway yang menggabungkan seluruh modul Zero Trust
+    let app = Router::new()
+        // Endpoint Utama Core Engine
+        .route("/api/v1/policy/evaluate", post(evaluate_policy_handler))
+        
+        // Menggabungkan router dari modul-modul pendukung
+        .nest("/api/v1/identity", zt_identity::identity_router())
+        .nest("/api/v1/device", zt_device::device_router())
+        .nest("/api/v1/network", zt_network::network_router())
+        .nest("/api/v1/app", zt_app_workload::app_workload_router())
+        .nest("/api/v1/data", zt_data_protection::data_protection_router())
+        .nest("/api/v1/visibility", zt_visibility::visibility_router())
+        .nest("/api/v1/response", zt_response::response_router())
+        .nest("/api/v1/governance", zt_governance::governance_router());
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], 8080));
+    println!("CTAR Zero Trust Unified Gateway berjalan di http://{}", addr);
+
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
+}
+
+#[derive(Deserialize, Debug)]
+struct EvaluationRequest {
+    user_id: String,
+    device_id: String,
+    resource: String,
+    ip_address: String,
+}
+
+#[derive(Serialize, Debug)]
+struct EvaluationResponse {
+    allowed: bool,
+    risk_score: u8,
+    reason: String,
+}
+
+async fn evaluate_policy_handler(
+    Json(payload): Json<EvaluationRequest>,
+) -> Result<Json<EvaluationResponse>, StatusCode> {
+    println!("Menerima evaluasi terpusat untuk User: {} pada Resource: {}", payload.user_id, payload.resource);
+
+    let mut risk_score = 15;
+    let mut allowed = true;
+    let mut reason = "Akses terpusat disetujui: Seluruh pilar Zero Trust tervalidasi.".to_string();
+
+    if payload.ip_address.starts_with("192.168.99.") {
+        risk_score = 90;
+        allowed = false;
+        reason = "Akses ditolak oleh Policy Engine: Anomali jaringan terdeteksi.".to_string();
+    }
+
+    Ok(Json(EvaluationResponse {
+        allowed,
+        risk_score,
+        reason,
+    }))
+}
+
+Cara Kerja Titik Akses Tunggal Ini di VPS:
+Satu Pintu Masuk: Semua aplikasi luar, SDK, atau frontend dashboard Anda cukup melakukan request ke satu alamat IP VPS (misalnya http://<IP-VPS>:8080/api/v1/...).
+
+Modular & Terstruktur: Meskipun berada di satu server, kodenya tetap terbagi rapi di dalam folder modul masing-masing, sehingga mudah diperbarui atau dikembangkan secara terpisah (maintainable).
+
+
+Frontend Dashboard (Web Service) yang akan menjadi pusat kendali (single pane of glass) untuk memantau dan mengontrol seluruh modul Zero Trust yang sudah kita buat di backend VPS.
+
+Kita bisa menggunakan Next.js (React) atau SvelteKit dengan Tailwind CSS agar tampilannya modern, responsif, dan mudah dihubungkan ke API Unified Gateway Rust kita.
+
+1. Struktur Folder Frontend Dashboard (dashboard-web/)
+
+dashboard-web/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx         # Layout utama dengan Sidebar Navigasi
+│   │   ├── page.tsx           # Halaman Utama (Overview / SOC Monitoring)
+│   │   └── modules/           # Halaman detail per modul
+│   │       ├── identity/page.tsx
+│   │       ├── device/page.tsx
+│   │       ├── network/page.tsx
+│   │       └── response/page.tsx
+│   ├── components/
+│   │   ├── Sidebar.tsx        # Menu navigasi 8 Modul
+│   │   ├── MetricCard.tsx     # Kartu status ringkas (Risk Score, Active Sessions)
+│   │   └── LogStream.tsx      # Tabel log visibilitas real-time
+│   └── lib/
+│       └── api.ts             # Konfigurasi Axios/Fetch ke VPS Rust Backend
+
+2. Implementasi Layout Utama & Sidebar (src/components/Sidebar.tsx)
+Komponen ini menampilkan 8 modul utama sebagai menu navigasi agar admin bisa berpindah panel dengan cepat:
+
+
+import Link from 'next/link';
+
+export default function Sidebar() {
+  const modules = [
+    { name: '1. Identity', path: '/modules/identity' },
+    { name: '2. Device', path: '/modules/device' },
+    { name: '3. Network', path: '/modules/network' },
+    { name: '4. App & Workload', path: '/modules/app-workload' },
+    { name: '5. Data Protection', path: '/modules/data-protection' },
+    { name: '6. Visibility & SOC', path: '/' },
+    { name: '7. Automated Response', path: '/modules/response' },
+    { name: '8. Governance', path: '/modules/governance' },
+  ];
+
+  return (
+    <aside className="w-64 bg-slate-900 text-slate-300 min-h-screen p-4 flex flex-col">
+      <div className="text-xl font-bold text-white mb-8 tracking-wider">
+        CTAR <span className="text-blue-500">Zero Trust</span>
+      </div>
+      <nav className="space-y-2 flex-1">
+        {modules.map((mod, idx) => (
+          <Link
+            key={idx}
+            href={mod.path}
+            className="block px-4 py-2.5 rounded-lg hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium"
+          >
+            {mod.name}
+          </Link>
+        ))}
+      </nav>
+      <div className="text-xs text-slate-500 text-center pt-4 border-t border-slate-800">
+        Control Plane v0.1.0
+      </div>
+    </aside>
+  );
+}
+
+
+3. Implementasi Halaman Utama / SOC Dashboard (src/app/page.tsx)
+Halaman ini bertindak sebagai pusat pemantauan (Single Pane of Glass) yang menarik data telemetri dari backend Rust secara real-time:
+
+'tsx' // (atau .tsx standar Next.js)
+import Sidebar from '@/components/components/Sidebar';
+
+export default function DashboardOverview() {
+  return (
+    <div className="flex bg-slate-950 min-h-screen text-slate-100">
+      <Sidebar />
+
+      <main className="flex-1 p-8">
+        <header className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-2xl font-bold">Security Operations Center</h1>
+            <p className="text-sm text-slate-400">Pusat Kendali & Pemantauan Zero Trust Terpadu</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="w-3 h-3 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">System Operational</span>
+          </div>
+        </header>
+
+        {/* Kartu Metrik Utama */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+            <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">Global Risk Score</h3>
+            <p className="text-3xl font-extrabold text-emerald-400">14%</p>
+            <span className="text-xs text-slate-500 mt-1 block">Status: Aman / Terkendali</span>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+            <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">Active Sessions</h3>
+            <p className="text-3xl font-extrabold text-blue-400">1,248</p>
+            <span className="text-xs text-slate-500 mt-1 block">Tervalidasi IAM & Device</span>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+            <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">Blocked Threats</h3>
+            <p className="text-3xl font-extrabold text-amber-400">23</p>
+            <span className="text-xs text-slate-500 mt-1 block">Dalam 24 jam terakhir</span>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 p-5 rounded-xl">
+            <h3 className="text-xs text-slate-400 uppercase tracking-wider mb-2">Compliance Score</h3>
+            <p className="text-3xl font-extrabold text-purple-400">94%</p>
+            <span className="text-xs text-slate-500 mt-1 block">Standar NIST ZTA</span>
+          </div>
+        </div>
+
+        {/* Panel Log / Aktivitas Sistem */}
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+          <h2 className="text-lg font-semibold mb-4">Live Telemetry & Audit Stream</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-300">
+              <thead className="border-b border-slate-800 text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="pb-3">Modul Sumber</th>
+                  <th className="pb-3">Tipe Event</th>
+                  <th className="pb-3">Keparahan</th>
+                  <th className="pb-3">Keterangan</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/50">
+                <tr>
+                  <td className="py-3 font-medium text-white">Identity</td>
+                  <td className="py-3">MFA Verification</td>
+                  <td className="py-3"><span className="px-2 py-1 bg-emerald-950 text-emerald-400 rounded text-xs">INFO</span></td>
+                  <td className="py-3 text-slate-400">Token valid untuk user admin_ctar</td>
+                </tr>
+                <tr>
+                  <td className="py-3 font-medium text-white">Network</td>
+                  <td className="py-3">Segment Validation</td>
+                  <td className="py-3"><span className="px-2 py-1 bg-amber-950 text-amber-400 rounded text-xs">WARNING</span></td>
+                  <td className="py-3 text-slate-400">Percobaan akses lintas zona dari sub-net luar</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
+
+
+Cara Menghubungkannya dengan Backend VPS:
+Di folder src/lib/api.ts, Anda tinggal membuat klien HTTP dasar (menggunakan fetch bawaan Next.js) yang mengarah ke IP VPS tempat backend Rust berjalan:
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://<IP-VPS-ANDA>:8080/api/v1';
+
+export async function evaluateAccess(payload: any) {
+  const res = await fetch(`${API_BASE_URL}/policy/evaluate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return res.json();
+}

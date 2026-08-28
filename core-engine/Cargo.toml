@@ -1,0 +1,30 @@
+[package]
+name = "core_engine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+axum = { version = "0.7", features = ["json", "ws"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+futures-util = "=0.3.31"
+
+# Modular Internal Workspace Crates
+zt_identity = { path = "../modules/identity" }
+zt_device = { path = "../modules/device" }
+zt_network = { path = "../modules/network" }
+zt_app_workload = { path = "../modules/app-workload" }
+zt_data_prot = { path = "../modules/data-prot" }
+zt_visibility = { path = "../modules/visibility" }
+zt_response = { path = "../modules/response" }
+zt_governance = { path = "../modules/governance" }
+zt_ai_engine = { path = "../modules/ai-engine" }
+zt_licensing = { path = "../modules/licensing" }
+zt_billing = { path = "../modules/billing" }
+zt_webhook = { path = "../modules/webhook" }
