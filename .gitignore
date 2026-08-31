@@ -52,3 +52,10 @@ tools/
 issued_licenses/
 master_authority.key
 *.bat
+
+# 7. Internal Notes & Confidential Brainstorms (Local Only - JANGAN PUSH KE GIT)
+*.txt
+implementation_plan.md
+
+
+

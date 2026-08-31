@@ -90,10 +90,13 @@ export default function ResponseModulePage() {
                   onChange={(e) => setSelectedPlaybook(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-500"
                 >
-                  <option value="PB_RANSOMWARE_QUARANTINE">PB-01: Ransomware Lateral Containment & Network Isolate</option>
-                  <option value="PB_CREDENTIAL_STUFFING_KILL">PB-02: Revoke All Tokens & Force Password Reset</option>
-                  <option value="PB_DATA_EXFILTRATION_BLOCK">PB-03: Block Outbound Egress Port & KMS Token Freeze</option>
+                  <option value="PB_RANSOMWARE_QUARANTINE">PB-01: Ransomware Behavioral Containment & Auto-Snapshot Restore</option>
+                  <option value="PB_HONEYTOKEN_DECEPTION">PB-02: Deception Tech Honeytoken Trip & Global Attacker Blacklist</option>
+                  <option value="PB_MEMORY_GUARD_TAMPER">PB-03: Memory Guard Anti-Tamper & Process Injection Kill</option>
+                  <option value="PB_AI_SESSION_HIJACK">PB-04: AIControlPlane ITDR AI-Agent Token Revoke & Key Rotation</option>
+                  <option value="PB_CREDENTIAL_STUFFING_KILL">PB-05: Revoke All Tokens & Force Hardware MFA Challenge</option>
                 </select>
+
               </div>
 
               <div className="p-3 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1">

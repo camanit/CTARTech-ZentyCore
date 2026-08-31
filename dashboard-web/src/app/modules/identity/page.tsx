@@ -95,20 +95,23 @@ export default function IdentityModulePage() {
                     onChange={(e) => setTokenType(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                   >
-                    <option value="valid_jwt_claim_secops_token">Valid Signed JWT (Ed25519)</option>
+                    <option value="valid_jwt_claim_secops_token">Valid Signed JWT (Ed25519 - Human User)</option>
+                    <option value="valid_ai_agent_jit_token">Valid AI-Agent Non-Human Identity (JIT Scoped)</option>
                     <option value="expired_token_timestamp">Expired JWT Token</option>
+                    <option value="itdr_anomaly_session_hijack">ITDR Session Anomaly / Hijacked Token</option>
                     <option value="forged_signature_token">Forged Signature / Tampered</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 mb-1">MFA Factor Level</label>
+                  <label className="block text-xs font-semibold text-slate-400 mb-1">MFA / Machine Attestation Level</label>
                   <select
                     value={mfaStatus}
                     onChange={(e) => setMfaStatus(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                   >
                     <option value="Enforced_TOTP_FIDO2">FIDO2 / WebAuthn Hardware Key</option>
+                    <option value="AI_AGENT_ROTATING_CERT">AIControlPlane Auto-Rotating Secret</option>
                     <option value="Authenticator_App">App TOTP Authenticator</option>
                     <option value="Disabled">Disabled (Unsafe)</option>
                   </select>
@@ -116,17 +119,19 @@ export default function IdentityModulePage() {
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-400 mb-1">RBAC / ABAC Role Claim</label>
+                <label className="block text-xs font-semibold text-slate-400 mb-1">RBAC / Non-Human Role Claim</label>
                 <select
                   value={rbacRole}
                   onChange={(e) => setRbacRole(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                 >
                   <option value="SecOps_Admin">SecOps_Admin (Full Control)</option>
+                  <option value="AI_Autonomous_Worker">AI_Autonomous_Worker (JIT Least-Privilege Scoped)</option>
                   <option value="Database_Operator">Database_Operator (Restricted SQL)</option>
                   <option value="General_Employee">General_Employee (Read-Only Portal)</option>
                 </select>
               </div>
+
 
               <button
                 onClick={handleVerifyIdentity}

@@ -165,6 +165,100 @@ pub fn generate_global_compliance_audit(framework: &str) -> ComplianceReportResp
             ],
             98
         ),
+        "ISO27001" | "ISO_27001" => (
+            "International (ISO/IEC 27001:2022 ISMS)",
+            vec![
+                ComplianceStandardItem {
+                    clause: "A.5.15 - Access Control".to_string(),
+                    region: "Global".to_string(),
+                    description: "Strict RBAC/ABAC & MFA/SSO access control policies across all endpoints".to_string(),
+                    status: "PASS".to_string(),
+                    score: 100,
+                },
+                ComplianceStandardItem {
+                    clause: "A.8.24 - Cryptography".to_string(),
+                    region: "Global".to_string(),
+                    description: "End-to-End Encryption (AES-256 at-rest & TLS 1.3/mTLS in-transit)".to_string(),
+                    status: "PASS".to_string(),
+                    score: 100,
+                },
+                ComplianceStandardItem {
+                    clause: "A.8.12 - Data Leakage Prevention".to_string(),
+                    region: "Global".to_string(),
+                    description: "Automated DLP classifiers and multi-tenant data isolation perimeters".to_string(),
+                    status: "PASS".to_string(),
+                    score: 98,
+                },
+            ],
+            99
+        ),
+        "ISO22301" | "ISO_22301" => (
+            "International (ISO 22301:2019 BCM)",
+            vec![
+                ComplianceStandardItem {
+                    clause: "Sec. 8.4 - Business Continuity Plans".to_string(),
+                    region: "Global".to_string(),
+                    description: "Automated Time-Based Escalation and Stress-Test Simulator integration".to_string(),
+                    status: "PASS".to_string(),
+                    score: 97,
+                },
+                ComplianceStandardItem {
+                    clause: "Sec. 8.5 - Exercise and Testing".to_string(),
+                    region: "Global".to_string(),
+                    description: "Chaos resilience tests and automated failover snapshot recovery verification".to_string(),
+                    status: "PASS".to_string(),
+                    score: 96,
+                },
+            ],
+            97
+        ),
+        "ISO9001" | "ISO_9001" => (
+            "International (ISO 9001:2015 QMS)",
+            vec![
+                ComplianceStandardItem {
+                    clause: "Sec. 10.2 - Nonconformity & Corrective Action".to_string(),
+                    region: "Global".to_string(),
+                    description: "Mandatory Root Cause Analytics (RCA Gate) & Auto Post-Mortem SOP Sync".to_string(),
+                    status: "PASS".to_string(),
+                    score: 98,
+                },
+                ComplianceStandardItem {
+                    clause: "Sec. 9.1 - Monitoring, Measurement, Analysis".to_string(),
+                    region: "Global".to_string(),
+                    description: "Real-time SOC telemetry streaming and continuous SLA posture metric tracking".to_string(),
+                    status: "PASS".to_string(),
+                    score: 99,
+                },
+            ],
+            98
+        ),
+        "UUPDP" | "UU_PDP" | "INDONESIA_PDP" => (
+            "Indonesia (UU No. 27/2022 Pelindungan Data Pribadi)",
+            vec![
+                ComplianceStandardItem {
+                    clause: "Pasal 35 & 36 - Keamanan Pemrosesan Data".to_string(),
+                    region: "Indonesia".to_string(),
+                    description: "Penerapan enkripsi kuat AES-256 dan isolasi Private Vector Data Bank".to_string(),
+                    status: "PASS".to_string(),
+                    score: 100,
+                },
+                ComplianceStandardItem {
+                    clause: "Pasal 39 - Notifikasi Kegagalan Pelindungan".to_string(),
+                    region: "Indonesia".to_string(),
+                    description: "Otomatisasi isolasi breach dan pelaporan insiden terenkripsi <72 jam".to_string(),
+                    status: "PASS".to_string(),
+                    score: 98,
+                },
+                ComplianceStandardItem {
+                    clause: "Pasal 46 - Anonimisasi & Masking Data".to_string(),
+                    region: "Indonesia".to_string(),
+                    description: "Fitur Data Masking / Anonymization pada log audit dan telemetri".to_string(),
+                    status: "PASS".to_string(),
+                    score: 100,
+                },
+            ],
+            99
+        ),
         _ => (
             "Indonesia (OJK & BSSN Hybrid)",
             vec![

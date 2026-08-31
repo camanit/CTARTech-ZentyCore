@@ -40,7 +40,25 @@ pub fn router() -> Router {
     Router::new()
         .route("/validate-key", post(validate_key_handler))
         .route("/generate-offline-key", post(generate_offline_key_handler))
+        .route("/dynamic-handshake", post(dynamic_handshake_handler))
 }
+
+pub async fn dynamic_handshake_handler(
+    Json(payload): Json<serde_json::Value>,
+) -> Result<Json<serde_json::Value>, StatusCode> {
+    let license_id = payload.get("license_id").and_then(|v| v.as_str()).unwrap_or("unknown_license");
+    let is_tampered = payload.get("tamper_flag").and_then(|v| v.as_bool()).unwrap_or(false);
+    let is_active = license_id != "revoked_license" && !is_tampered;
+
+    Ok(Json(serde_json::json!({
+        "handshake_status": if is_active { "AUTHORIZED_ACTIVE" } else { "REMOTE_LOCK_ACTIVATED" },
+        "license_id": license_id,
+        "remote_killswitch_state": if is_active { "DISARMED_HEALTHY" } else { "TRIGGERED_REVOKED" },
+        "enforcement_action": if is_active { "ALLOW_ALL_MODULES" } else { "LOCK_ENTERPRISE_MODULES_LOCALLY" },
+        "validated_at": Utc::now().to_rfc3339(),
+    })))
+}
+
 
 pub async fn validate_key_handler(
     Json(payload): Json<ValidateKeyRequest>,

@@ -51,6 +51,44 @@ export default function GovernanceModulePage() {
         { clause: 'CC7.2', desc: 'Automated threat detection, alerting, and rapid remediation.', status: 'PASS', score: 100 },
       ],
     },
+    ISO_27001: {
+      name: 'ISO/IEC 27001:2022 (ISMS)',
+      region: 'International Information Security Standard',
+      score: 100,
+      controls: [
+        { clause: 'A.5.15 - Access Control', desc: 'Kontrol akses berbasis peran dan otentikasi multi-faktor (MFA/SSO).', status: 'PASS', score: 100 },
+        { clause: 'A.8.24 - Cryptography', desc: 'Enkripsi data end-to-end (AES-256 at-rest & TLS 1.3/mTLS in-transit).', status: 'PASS', score: 100 },
+        { clause: 'A.8.12 - Data Leakage Prevention', desc: 'Pencegahan kebocoran data dan isolasi multi-tenant terenkripsi.', status: 'PASS', score: 98 },
+      ],
+    },
+    ISO_22301: {
+      name: 'ISO 22301:2019 (Business Continuity Management)',
+      region: 'International Resilience & Continuity Standard',
+      score: 98,
+      controls: [
+        { clause: 'Sec. 8.4 - BCM Plans', desc: 'Stress-test simulator dan time-based escalation mitigasi disrupsi operasional.', status: 'PASS', score: 98 },
+        { clause: 'Sec. 8.5 - Testing & Exercise', desc: 'Uji pemulihan otomatis via immutable snapshot & continuous replication.', status: 'PASS', score: 97 },
+      ],
+    },
+    ISO_9001: {
+      name: 'ISO 9001:2015 (Quality Management System)',
+      region: 'International Quality & Continuous Improvement',
+      score: 99,
+      controls: [
+        { clause: 'Sec. 10.2 - RCA Gate', desc: 'Mandatory Root Cause Analytics (RCA Gate) & Auto Post-Mortem SOP Sync.', status: 'PASS', score: 99 },
+        { clause: 'Sec. 9.1 - Monitoring', desc: 'Telemetri SOC real-time dan evaluasi metrik kinerja keamanan berkelanjutan.', status: 'PASS', score: 98 },
+      ],
+    },
+    UU_PDP: {
+      name: 'UU No. 27/2022 (Pelindungan Data Pribadi / PDP)',
+      region: 'Indonesia (Kepatuhan Regulasi Privasi Data)',
+      score: 100,
+      controls: [
+        { clause: 'Pasal 35 & 36', desc: 'Enkripsi kuat pada pemrosesan data & isolasi Private Vector Data Bank.', status: 'PASS', score: 100 },
+        { clause: 'Pasal 39', desc: 'Otomatisasi isolasi pelanggaran & notifikasi insiden terenkripsi <72 jam.', status: 'PASS', score: 98 },
+        { clause: 'Pasal 46', desc: 'Data Masking dan Anonimisasi log audit untuk privasi data subjek.', status: 'PASS', score: 100 },
+      ],
+    },
     MAS_TRM: {
       name: 'MAS Technology Risk Management (TRM) Guidelines',
       region: 'Singapore Financial Authority (MAS)',

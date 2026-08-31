@@ -114,6 +114,30 @@ export default function AppWorkloadModulePage() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => {
+                      setPayloadType('BOLA_ATTACK');
+                      setCustomPayload('GET /api/v1/reports?tenant_id=admin_finance_db&export=true');
+                    }}
+                    className={`px-2.5 py-1.5 rounded text-[11px] font-semibold border text-left truncate transition-all ${
+                      payloadType === 'BOLA_ATTACK' ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-950 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    BOLA / API Authz Abuse
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPayloadType('DDOS_SPIKE');
+                      setCustomPayload('BURST_RATE: 2500 req/sec from botnet cluster (SYN+HTTP GET flood)');
+                    }}
+                    className={`px-2.5 py-1.5 rounded text-[11px] font-semibold border text-left truncate transition-all ${
+                      payloadType === 'DDOS_SPIKE' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' : 'bg-slate-950 border-slate-800 text-slate-400'
+                    }`}
+                  >
+                    L7 DDoS / Traffic Spike
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => handleSelectPayload('LEGITIMATE')}
                     className={`px-2.5 py-1.5 rounded text-[11px] font-semibold border text-left truncate transition-all ${
                       payloadType === 'LEGITIMATE' ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' : 'bg-slate-950 border-slate-800 text-slate-400'
@@ -121,6 +145,7 @@ export default function AppWorkloadModulePage() {
                   >
                     Legitimate JSON Payload
                   </button>
+
                 </div>
               </div>
 
