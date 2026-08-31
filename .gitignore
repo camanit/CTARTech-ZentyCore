@@ -44,20 +44,21 @@ scratch/
 .DS_Store
 Thumbs.db
 
-# 5. OS & Local Artifacts
+# 5. OS & Local Build Artifacts
 *.log
-
-# 6. Proprietary Developer Tools (Local Developer PC Only)
+*.bat
 tools/
 issued_licenses/
 master_authority.key
-*.bat
 
-# 7. Internal Notes & Confidential Brainstorms (Local Only - JANGAN PUSH KE GIT)
+# 6. Local Workspace Drafts & Documentation
 *.txt
+*.draft
+*.private
 implementation_plan.md
 roadmap.md
 zentycore_detail_spec.md
+
 
 
 
