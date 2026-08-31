@@ -56,6 +56,8 @@ master_authority.key
 # 7. Internal Notes & Confidential Brainstorms (Local Only - JANGAN PUSH KE GIT)
 *.txt
 implementation_plan.md
+roadmap.md
+
 
 
 
