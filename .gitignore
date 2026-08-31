@@ -57,6 +57,8 @@ master_authority.key
 *.txt
 implementation_plan.md
 roadmap.md
+zentycore_detail_spec.md
+
 
 
 
